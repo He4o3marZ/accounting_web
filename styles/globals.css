@@ -1,0 +1,157 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* RTL Support */
+html[dir="rtl"] {
+  direction: rtl;
+}
+
+html[dir="ltr"] {
+  direction: ltr;
+}
+
+/* Logical properties for better RTL support */
+.text-start {
+  text-align: start;
+}
+
+.text-end {
+  text-align: end;
+}
+
+/* Margin and padding logical properties */
+.ms-0 { margin-inline-start: 0; }
+.me-0 { margin-inline-end: 0; }
+.ps-0 { padding-inline-start: 0; }
+.pe-0 { padding-inline-end: 0; }
+
+.ms-1 { margin-inline-start: 0.25rem; }
+.me-1 { margin-inline-end: 0.25rem; }
+.ps-1 { padding-inline-start: 0.25rem; }
+.pe-1 { padding-inline-end: 0.25rem; }
+
+.ms-2 { margin-inline-start: 0.5rem; }
+.me-2 { margin-inline-end: 0.5rem; }
+.ps-2 { padding-inline-start: 0.5rem; }
+.pe-2 { padding-inline-end: 0.5rem; }
+
+.ms-3 { margin-inline-start: 0.75rem; }
+.me-3 { margin-inline-end: 0.75rem; }
+.ps-3 { padding-inline-start: 0.75rem; }
+.pe-3 { padding-inline-end: 0.75rem; }
+
+.ms-4 { margin-inline-start: 1rem; }
+.me-4 { margin-inline-end: 1rem; }
+.ps-4 { padding-inline-start: 1rem; }
+.pe-4 { padding-inline-end: 1rem; }
+
+/* RTL-specific animations */
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFromLeft {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+html[dir="rtl"] .slide-in {
+  animation: slideInFromRight 0.3s ease-out;
+}
+
+html[dir="ltr"] .slide-in {
+  animation: slideInFromLeft 0.3s ease-out;
+}
+
+/* RTL-specific styles for icons and elements */
+html[dir="rtl"] .rtl-flip {
+  transform: scaleX(-1);
+}
+
+/* Custom scrollbar for RTL */
+html[dir="rtl"] ::-webkit-scrollbar {
+  direction: rtl;
+}
+
+/* Focus styles that work with RTL */
+.focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+}
+
+/* Loading states */
+.loading-shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Translation loading state */
+.translation-loading {
+  @apply opacity-50 pointer-events-none;
+}
+
+/* RTL-specific button styles */
+html[dir="rtl"] .btn-icon {
+  @apply flex-row-reverse;
+}
+
+/* Form elements RTL support */
+html[dir="rtl"] input[type="text"],
+html[dir="rtl"] input[type="email"],
+html[dir="rtl"] input[type="password"],
+html[dir="rtl"] textarea,
+html[dir="rtl"] select {
+  text-align: right;
+}
+
+html[dir="ltr"] input[type="text"],
+html[dir="ltr"] input[type="email"],
+html[dir="ltr"] input[type="password"],
+html[dir="ltr"] textarea,
+html[dir="ltr"] select {
+  text-align: left;
+}
+
+/* Table RTL support */
+html[dir="rtl"] table {
+  direction: rtl;
+}
+
+html[dir="rtl"] th,
+html[dir="rtl"] td {
+  text-align: right;
+}
+
+html[dir="ltr"] th,
+html[dir="ltr"] td {
+  text-align: left;
+}
+
+
+
+
+
+

@@ -1,0 +1,26 @@
+{
+  "name": "@joautomation/contracts",
+  "version": "1.0.0",
+  "description": "Shared contracts and schemas for JoAutomation API and Python worker",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "generate-json-schema": "tsx scripts/generate-json-schema.ts"
+  },
+  "dependencies": {
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4",
+    "tsx": "^4.7.0",
+    "zod-to-json-schema": "^3.22.4"
+  }
+}
+
+
+
+
+
+

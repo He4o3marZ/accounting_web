@@ -1,0 +1,163 @@
+{
+  "dashboard": {
+    "title": "Dashboard - JoAutomation",
+    "welcome": "Welcome back, {{name}}!",
+    "navigation": {
+      "overview": "Dashboard",
+      "reports": "Reports"
+    },
+    "sections": {
+      "overview": {
+        "title": "Financial Analysis"
+      },
+      "settings": {
+        "title": "Settings"
+      },
+      "reports": {
+        "title": "Reports"
+      },
+      "invoices": {
+        "uploadNew": "Upload Data"
+      }
+    },
+    "buttons": {
+      "login": "Login",
+      "logout": "Logout"
+    },
+    "financialAnalysis": {
+      "title": "Financial Analysis",
+      "subtitle": "Comprehensive financial analysis including assets, liabilities, debts, and taxes",
+      "assetsLiabilities": "Assets & Liabilities",
+      "totalAssets": "Total Assets:",
+      "totalLiabilities": "Total Liabilities:",
+      "netWorth": "Net Worth:",
+      "debtToAssetRatio": "Debt-to-Asset Ratio:",
+      "debtsLoans": "Debts & Loans",
+      "totalDebts": "Total Debts:",
+      "totalLoans": "Total Loans:",
+      "netDebt": "Net Debt:",
+      "debtToIncomeRatio": "Debt-to-Income Ratio:",
+      "taxesVAT": "Taxes & VAT",
+      "totalTaxes": "Total Taxes:",
+      "totalVAT": "Total VAT:",
+      "effectiveTaxRate": "Effective Tax Rate:",
+      "upcomingDeadlines": "Upcoming Deadlines:"
+    },
+    "balanceSheet": {
+      "title": "Balance Sheet",
+      "subtitle": "Assets, Liabilities, and Equity overview",
+      "assets": "Assets",
+      "liabilities": "Liabilities",
+      "noData": "No balance sheet data available. Upload a file to get started."
+    },
+    "upload": {
+      "title": "Upload Data",
+      "subtitle": "Upload your financial data files for analysis",
+      "uploadAccountingData": "Upload Accounting Data",
+      "manualDataEntry": "Manual Data Entry",
+      "uploadHistory": "Upload History",
+      "dragDrop": "Drag and drop your CSV, Excel, or PDF file here, or click to browse",
+      "supportedFormats": "Supported formats: .csv, .xlsx, .xls, .pdf",
+      "processing": "Processing your file with Amwali AI...",
+      "manualEntry": "Can't upload a file? Enter your invoice data manually below:",
+      "invoiceNumber": "Invoice Number:",
+      "invoiceDate": "Date:",
+      "currency": "Currency:",
+      "euro": "Euro (€)",
+      "usd": "US Dollar ($)",
+      "gbp": "British Pound (£)",
+      "jpy": "Japanese Yen (¥)",
+      "sar": "Saudi Riyal (SAR)",
+      "aed": "UAE Dirham (AED)",
+      "vendorName": "Vendor/Company Name:",
+      "totalAmount": "Total Amount:",
+      "expenses": "Expenses (one per line):",
+      "expensesHelp": "Enter each expense on a new line with description and amount",
+      "income": "Income (one per line):",
+      "incomeHelp": "Enter each income source on a new line with description and amount",
+      "notes": "Additional Notes:",
+      "noFiles": "No files uploaded yet."
+    },
+    "stats": {
+      "totalExpenses": "Total Expenses",
+      "totalIncome": "Total Income",
+      "netCashflow": "Net Cashflow",
+      "activeAlerts": "Active Alerts",
+      "positiveHighlights": "Positive Highlights",
+      "financialInsights": "Financial Insights",
+      "cashflowOverview": "Cashflow Overview",
+      "recentAlerts": "Recent Alerts",
+      "chartLoading": "Chart loading...",
+      "noAlerts": "No alerts at this time.",
+      "noHighlights": "No highlights at this time.",
+      "noInsights": "No financial insights available. Upload a file to get started."
+    },
+    "tooltips": {
+      "totalExpenses": "Total amount spent on business operations, including rent, supplies, salaries, and other costs",
+      "totalIncome": "Total revenue earned from business activities, including sales, services, and other income sources",
+      "netCashflow": "The difference between total income and total expenses. Positive means more money coming in than going out",
+      "assets": "Resources owned by the business that have economic value",
+      "liabilities": "Debts and obligations owed by the business",
+      "equity": "Owner's claim on business assets after liabilities",
+      "financialRatios": "Key financial ratios for business health assessment",
+      "revenue": "Total income from business operations",
+      "expenses": "Costs incurred in running the business",
+      "profitMargins": "Percentage of revenue that becomes profit",
+      "netIncome": "Final profit after all expenses and taxes"
+    },
+    "company": {
+      "name": "JoAutomation",
+      "poweredBy": "Powered by Amwali"
+    },
+    "profitLoss": {
+      "title": "P&L Statement"
+    },
+    "ledger": {
+      "title": "Ledger Accounts",
+      "subtitle": "General Ledger with Debits, Credits, and Balances",
+      "chartOfAccounts": "Chart of Accounts",
+      "chartOfAccountsTooltip": "Complete list of all accounts used in the business",
+      "trialBalance": "Trial Balance",
+      "trialBalanceTooltip": "Summary of all account balances to verify debits equal credits",
+      "generalLedger": "General Ledger",
+      "generalLedgerTooltip": "Detailed record of all business transactions by account",
+      "accountBalances": "Account Balances",
+      "accountBalancesTooltip": "Current balance for each account in the ledger"
+    },
+    "budgeting": {
+      "title": "Budgeting"
+    },
+    "forecasting": {
+      "title": "Forecasting"
+    },
+    "advisor": {
+      "title": "AI Advisor"
+    },
+    "alerts": {
+      "title": "Alerts"
+    },
+    "admin": {
+      "title": "Admin Panel"
+    },
+    "user": {
+      "companyName": "Company Name"
+    },
+    "staticContent": "Static Content",
+    "staticDescription": "This content is translated using i18n keys and changes instantly when you switch languages.",
+    "feature1": "Instant language switching",
+    "feature2": "RTL/LTR layout support",
+    "feature3": "SEO-friendly URLs",
+    "aiContent": "AI Content Translation",
+    "aiDescription": "This content is dynamically translated using our AI translation service with caching.",
+    "translateAI": "Translate AI Content",
+    "translating": "Translating...",
+    "translatedContent": "Translated Content",
+    "htmlContent": "HTML Content Translation",
+    "rtlDemo": "RTL Layout Demo",
+    "rtlDescription": "Notice how the layout adapts to RTL (Right-to-Left) for Arabic.",
+    "leftToRight": "LTR",
+    "rightToLeft": "RTL",
+    "description": "AI-powered accounting automation system with bilingual support"
+  }
+}
+

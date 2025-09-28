@@ -1,0 +1,2998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Dashboard - JoAutomation</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <meta name="theme-color" content="#0d9488">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <style>
+        :root {
+            --header-h: 64px;
+            --sidebar-w: 260px;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0d9488 0%, #06b6d4 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--header-h);
+            z-index: 1000;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #0d9488;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .language-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            color: white;
+            padding: 0.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .language-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.6);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .language-btn i {
+            font-size: 1rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: #0d9488;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .logout-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #c0392b;
+        }
+
+        /* Main Layout */
+        .main-container {
+            display: block;
+            max-width: 1200px;
+            margin: var(--header-h) auto 0;
+            min-height: calc(100vh - var(--header-h));
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: var(--sidebar-w);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 2rem 0;
+            box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: var(--header-h);
+            left: 0;
+            height: calc(100vh - var(--header-h));
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 0 2rem 2rem;
+            border-bottom: 1px solid #e9ecef;
+            margin-bottom: 2rem;
+        }
+
+        .sidebar-header h2 {
+            color: #0d9488;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 1rem 2rem;
+            color: #666;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-link:hover {
+            background: rgba(13, 148, 136, 0.1);
+            color: #0d9488;
+        }
+
+        .nav-link.active {
+            background: rgba(13, 148, 136, 0.1);
+            color: #0d9488;
+            border-left-color: #0d9488;
+        }
+
+        .nav-link i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+            width: 100%;
+            margin-left: var(--sidebar-w);
+        }
+
+        .content-section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Upload Section */
+        .upload-section {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .upload-area {
+            border: 2px dashed #0d9488;
+            border-radius: 15px;
+            padding: 3rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            border-color: #06b6d4;
+            background: rgba(13, 148, 136, 0.05);
+        }
+
+        .upload-area.dragover {
+            border-color: #06b6d4;
+            background: rgba(13, 148, 136, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: #0d9488;
+            margin-bottom: 1rem;
+        }
+
+        .upload-text {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .upload-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* Reports Section Styles */
+        .filter-controls {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1rem 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: #2d3748;
+            min-width: 100px;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 0.5rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .filter-group select:focus,
+        .filter-group input:focus {
+            outline: none;
+            border-color: #0d9488;
+        }
+
+        .invoice-management,
+        .monthly-summary,
+        .export-controls {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1rem 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .invoice-management h3,
+        .monthly-summary h3,
+        .export-controls h3 {
+            margin: 0 0 1rem 0;
+            color: #2d3748;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .invoice-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .invoice-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            background: #f8fafc;
+            transition: all 0.3s ease;
+        }
+
+        .invoice-item:hover {
+            background: #f1f5f9;
+            border-color: #0d9488;
+        }
+
+        .invoice-item.excluded {
+            opacity: 0.6;
+            background: #fee2e2;
+            border-color: #f87171;
+        }
+
+        .invoice-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .invoice-name {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .invoice-details {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        .invoice-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-small {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-exclude {
+            background: #f87171;
+            color: white;
+        }
+
+        .btn-exclude:hover {
+            background: #ef4444;
+        }
+
+        .btn-include {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-include:hover {
+            background: #059669;
+        }
+
+        .btn-delete {
+            background: #dc2626;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #b91c1c;
+        }
+
+        .monthly-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .monthly-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .monthly-card:hover {
+            background: #f1f5f9;
+            border-color: #0d9488;
+            transform: translateY(-2px);
+        }
+
+        .monthly-card h4 {
+            margin: 0 0 0.5rem 0;
+            color: #2d3748;
+            font-size: 0.9rem;
+        }
+
+        .monthly-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        .monthly-income {
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        .monthly-expenses {
+            color: #ef4444;
+            font-weight: 600;
+        }
+
+        .no-data {
+            text-align: center;
+            color: #64748b;
+            font-style: italic;
+            padding: 2rem;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: #0d9488;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #06b6d4;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        /* Progress Section */
+        .progress-section {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #0d9488, #06b6d4);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .progress-text {
+            text-align: center;
+            color: #666;
+            font-weight: 500;
+        }
+
+        /* Results Grid */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            width: 100%;
+        }
+
+        /* Financial Analysis Panels */
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        @media (min-width: 900px) {
+            .analysis-grid { grid-template-columns: 1fr 1fr; }
+        }
+        .analysis-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+        .list { margin-top: 1rem; }
+        .list-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid #eee; }
+        .list-row:last-child { border-bottom: 0; }
+        .list-amount { font-weight: 600; }
+        .kv-row { margin: 0.25rem 0; }
+
+        /* Budget UI */
+        .chip { display: inline-block; padding: 0.25rem 0.6rem; border-radius: 999px; font-size: 0.8rem; font-weight: 600; }
+        .chip.success { background: #eafaf1; color: #1e8449; }
+        .chip.warning { background: #fff3cd; color: #8b6d00; }
+        .chip.error { background: #fdecea; color: #a12622; }
+        .progress-outer { height: 10px; background: #eef2f7; border-radius: 999px; overflow: hidden; }
+        .progress-inner { height: 100%; background: linear-gradient(90deg,#06b6d4,#0d9488); width: 0%; transition: width .4s ease; }
+
+        /* Insight cards */
+        .insight-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap: 1rem; }
+        .insight-card { background: white; border-radius: 12px; padding: 1rem; box-shadow: 0 5px 20px rgba(0,0,0,.06); }
+        .insight-title { font-weight: 700; margin-bottom: .35rem; display:flex; align-items:center; gap:.5rem; }
+        .insight-desc { color: #555; font-size: .95rem; }
+
+        /* Sparkline */
+        .sparkline { height: 36px; width: 100%; display: block; }
+
+        /* Detailed panel layout */
+        .panel-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; }
+        .panel-card { background:#fff; border-radius:16px; padding:1.25rem; box-shadow:0 12px 24px rgba(0,0,0,.06); }
+        .panel-title { font-weight:700; display:flex; align-items:center; gap:.5rem; margin-bottom:.75rem; color:#2c3e50; }
+        .metric { display:flex; justify-content:space-between; padding:.5rem 0; border-bottom:1px solid #f1f3f7; }
+        .metric:last-child { border-bottom:0; }
+        .metric-label { color:#6b7280; }
+        .metric-value { font-weight:800; color:#4f46e5; }
+
+        .result-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+            min-width: 200px;
+            width: 100%;
+        }
+
+        .result-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .result-title {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .result-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .result-value.success {
+            color: #28a745;
+        }
+
+        .result-value.error {
+            color: #e74c3c;
+        }
+
+        .result-value.warning {
+            color: #f39c12;
+        }
+
+        .result-subtitle {
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        /* Chart Section */
+        .chart-section {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-top: 1rem;
+        }
+
+        /* Alerts Section */
+        .alerts-section {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .alert-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .alert-icon {
+            font-size: 1.5rem;
+            color: #f39c12;
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .alert-message {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .no-alerts {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            padding: 2rem;
+        }
+
+        /* Mobile Responsive */
+        /* RTL Support */
+        [dir="rtl"] .sidebar {
+            right: 0;
+            left: auto;
+        }
+
+        [dir="rtl"] .main-content {
+            margin-left: 0;
+            margin-right: var(--sidebar-w);
+        }
+
+        [dir="rtl"] .user-info {
+            flex-direction: row-reverse;
+        }
+
+        [dir="rtl"] .nav-link {
+            text-align: right;
+        }
+
+        [dir="rtl"] .nav-link i {
+            margin-left: 0.5rem;
+            margin-right: 0;
+        }
+
+        /* Language Transition Effects */
+        .language-transitioning {
+            transition: all 0.3s ease;
+        }
+
+        .language-transitioning * {
+            transition: all 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+                margin-top: var(--header-h);
+            }
+
+            .sidebar {
+                width: 100%;
+                padding: 1rem 0;
+                position: static;
+                height: auto;
+                box-shadow: none;
+            }
+
+            .sidebar-nav {
+                display: flex;
+                overflow-x: auto;
+                padding: 0 1rem;
+            }
+
+            .nav-link {
+                white-space: nowrap;
+            }
+
+            .user-info {
+                gap: 0.5rem;
+            }
+
+            .language-btn {
+                width: 36px;
+                height: 36px;
+                padding: 0.4rem;
+            }
+
+            .language-btn i {
+                font-size: 0.9rem;
+            }
+                padding: 0.8rem 1rem;
+                border-left: none;
+                border-bottom: 3px solid transparent;
+            }
+
+        .nav-link.active {
+            border-left: none;
+            border-bottom-color: #0d9488;
+        }
+
+            .main-content {
+            padding: 1rem;
+                margin-left: 0;
+            }
+
+            .upload-buttons {
+                flex-direction: column;
+            align-items: center;
+            }
+
+            .results-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .result-card {
+                min-width: unset;
+            }
+
+            .chart-container {
+                height: 300px;
+            }
+        }
+
+        /* Camera Modal */
+        .camera-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .camera-content {
+            position: relative;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .camera-preview {
+            width: 100%;
+            max-width: 300px;
+            height: 200px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            margin: 1rem auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            border: 2px dashed #ccc;
+        }
+
+        .camera-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .camera-controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .camera-btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .camera-btn.primary {
+            background: #0d9488;
+            color: white;
+        }
+
+        .camera-btn.primary:hover {
+            background: #06b6d4;
+        }
+
+        .camera-btn.secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .camera-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .camera-btn.danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .camera-btn.danger:hover {
+            background: #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-chart-line"></i> JoAutomation
+            </div>
+            <div class="user-info">
+                <button class="language-btn" onclick="toggleLanguage()" title="Toggle Language">
+                    <i class="fas fa-language"></i>
+                    <span style="display: none;">🌐</span>
+                </button>
+                <div class="user-avatar" id="userAvatar">U</div>
+                <span id="userName">User</span>
+                <button class="logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Sidebar Navigation -->
+    <nav class="sidebar">
+        <div class="sidebar-header">
+                <h2><i class="fas fa-tachometer-alt"></i> Dashboard</h2>
+                <p>Financial Analysis</p>
+        </div>
+        <ul class="sidebar-nav">
+                <li><a href="#overview" class="nav-link active" data-section="overview">
+                    <i class="fas fa-chart-line"></i> Financial Analysis
+            </a></li>
+                <li><a href="#balance" class="nav-link" data-section="balance">
+                    <i class="fas fa-balance-scale"></i> Balance Sheet
+            </a></li>
+                <li><a href="#pl" class="nav-link" data-section="pl">
+                    <i class="fas fa-chart-pie"></i> P&L Statement
+            </a></li>
+            <li><a href="#ledger" class="nav-link" data-section="ledger">
+                    <i class="fas fa-book"></i> Ledger Accounts
+            </a></li>
+                <li><a href="#budget" class="nav-link" data-section="budget">
+                    <i class="fas fa-folder-open"></i> Budgeting
+            </a></li>
+            <li><a href="#forecasting" class="nav-link" data-section="forecasting">
+                    <i class="fas fa-chart-area"></i> Forecasting
+            </a></li>
+                <li><a href="#insights" class="nav-link" data-section="insights">
+                    <i class="fas fa-brain"></i> AI Advisor
+            </a></li>
+            <li><a href="#upload" class="nav-link" data-section="upload">
+                    <i class="fas fa-upload"></i> Upload Data
+            </a></li>
+            <li><a href="#reports" class="nav-link" data-section="reports">
+                    <i class="fas fa-file-pdf"></i> Reports
+            </a></li>
+                <li><a href="#settings" class="nav-link" data-section="settings">
+                    <i class="fas fa-cog"></i> Settings
+            </a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+        <main class="main-content">
+            <!-- Overview Section -->
+            <section id="overview-section" class="content-section active">
+                <div class="upload-section">
+                    <h2><i class="fas fa-chart-line"></i> Financial Overview</h2>
+                    <p>Upload your financial data to see comprehensive analysis including cashflow, assets, liabilities, debts, and taxes.</p>
+        </div>
+
+                <!-- Results Grid -->
+                <div class="results-grid" id="resultsGrid">
+                    <div class="result-card">
+                        <div class="result-title">Total Income</div>
+                        <div class="result-value success" id="totalIncome">$0</div>
+                        <div class="result-subtitle">Revenue generated</div>
+                </div>
+                    <div class="result-card">
+                        <div class="result-title">Total Expenses</div>
+                        <div class="result-value error" id="totalExpenses">$0</div>
+                        <div class="result-subtitle">Costs incurred</div>
+                </div>
+                    <div class="result-card">
+                        <div class="result-title">Net Cashflow</div>
+                        <div class="result-value success" id="netCashflow">$0</div>
+                        <div class="result-subtitle">Profit/Loss</div>
+                </div>
+                    <div class="result-card">
+                        <div class="result-title">Transactions</div>
+                        <div class="result-value" id="transactionCount">0</div>
+                        <div class="result-subtitle">Total processed</div>
+                </div>
+            </div>
+
+                <!-- Chart Section -->
+                <div class="chart-section">
+                    <h3><i class="fas fa-chart-pie"></i> Visual Analytics</h3>
+                    <div class="chart-container">
+                        <canvas id="financialChart"></canvas>
+                </div>
+            </div>
+
+                <!-- Financial Analysis Panels -->
+                <div class="analysis-grid" id="financialAnalysisGrid">
+                    <div class="analysis-panel">
+                        <h3>📊 Financial Summary</h3>
+                        <div class="kv-row"><strong>Total Income:</strong> <span id="faTotalIncome">$0</span></div>
+                        <div class="kv-row"><strong>Total Expenses:</strong> <span id="faTotalExpenses">$0</span></div>
+                        <div class="kv-row"><strong>Net Cashflow:</strong> <span id="faNetCashflow">$0</span></div>
+                        <div class="kv-row"><strong>Profit Margin:</strong> <span id="faProfitMargin">0%</span></div>
+                        <h4 style="margin-top:1rem">💰 Top Income Sources</h4>
+                        <div id="topIncomeList" class="list"></div>
+        </div>
+                    <div class="analysis-panel">
+                        <h3>🧾 Transaction Analysis</h3>
+                        <div class="kv-row"><strong>Total Transactions:</strong> <span id="faTotalTransactions">0</span></div>
+                        <div class="kv-row"><strong>Income Transactions:</strong> <span id="faIncomeTransactions">0</span></div>
+                        <div class="kv-row"><strong>Expense Transactions:</strong> <span id="faExpenseTransactions">0</span></div>
+                        <div class="kv-row"><strong>Average Income:</strong> <span id="faAverageIncome">$0</span></div>
+                        <h4 style="margin-top:1rem">📉 Top Expenses</h4>
+                        <div id="topExpenseList" class="list"></div>
+                </div>
+            </div>
+
+                <!-- Alerts Section -->
+                <div class="alerts-section">
+                    <h3><i class="fas fa-exclamation-triangle"></i> Smart Alerts</h3>
+                    <div id="alertsContainer">
+                        <div class="no-alerts">No alerts at this time</div>
+                        </div>
+                        </div>
+            </section>
+
+            <!-- Assets & Liabilities -->
+            <section id="assets-section" class="content-section">
+                <div class="upload-section">
+                    <h2><i class="fas fa-balance-scale"></i> Assets & Liabilities</h2>
+                    <div class="results-grid">
+                        <div class="result-card"><div class="result-title">Total Assets</div><div class="result-value" id="totalAssets">$0</div></div>
+                        <div class="result-card"><div class="result-title">Total Liabilities</div><div class="result-value" id="totalLiabilities">$0</div></div>
+                        <div class="result-card"><div class="result-title">Net Worth</div><div class="result-value" id="netWorth">$0</div></div>
+                        <div class="result-card"><div class="result-title">Debt-to-Asset Ratio</div><div class="result-value" id="debtToAssetRatio">0%</div></div>
+                        </div>
+                        </div>
+            </section>
+
+                <!-- Debts & Loans -->
+            <section id="debts-section" class="content-section">
+                <div class="upload-section">
+                    <h2><i class="fas fa-credit-card"></i> Debts & Loans</h2>
+                    <div class="results-grid">
+                        <div class="result-card"><div class="result-title">Total Debts</div><div class="result-value" id="totalDebts">$0</div></div>
+                        <div class="result-card"><div class="result-title">Total Loans</div><div class="result-value" id="totalLoans">$0</div></div>
+                        <div class="result-card"><div class="result-title">Net Debt</div><div class="result-value" id="netDebt">$0</div></div>
+                        <div class="result-card"><div class="result-title">Debt-to-Income Ratio</div><div class="result-value" id="debtToIncomeRatio">0%</div></div>
+                        </div>
+                        </div>
+            </section>
+
+                <!-- Taxes & VAT -->
+            <section id="taxes-section" class="content-section">
+                <div class="upload-section">
+                    <h2><i class="fas fa-receipt"></i> Taxes & VAT</h2>
+                    <div class="results-grid">
+                        <div class="result-card"><div class="result-title">Total Taxes</div><div class="result-value" id="totalTaxes">$0</div></div>
+                        <div class="result-card"><div class="result-title">Total VAT</div><div class="result-value" id="totalVAT">$0</div></div>
+                        <div class="result-card"><div class="result-title">Effective Tax Rate</div><div class="result-value" id="effectiveTaxRate">0%</div></div>
+                        <div class="result-card"><div class="result-title">Upcoming Deadlines</div><div class="result-value" id="upcomingDeadlines">0</div></div>
+                        </div>
+                        </div>
+            </section>
+
+            <!-- Balance Sheet -->
+            <section id="balance-section" class="content-section">
+                <div class="upload-section">
+                    <h2><i class="fas fa-table"></i> Balance Sheet</h2>
+                    <div id="balanceSheetContainer" class="results-grid"></div>
+                        </div>
+            </section>
+
+            <!-- Profit & Loss -->
+            <section id="pl-section" class="content-section">
+                <div class="upload-section">
+                    <h2><i class="fas fa-chart-pie"></i> Profit & Loss</h2>
+                    <div id="plContainer" class="results-grid"></div>
+                        </div>
+            </section>
+
+            <!-- Ledger Accounts -->
+            <section id="ledger-section" class="content-section">
+                <div class="upload-section">
+                    <h2><i class="fas fa-book"></i> Ledger Accounts</h2>
+                    <div id="ledgerContainer" class="results-grid"></div>
+                        </div>
+            </section>
+
+            <!-- Budgeting -->
+            <section id="budget-section" class="content-section">
+                <div class="upload-section">
+                    <h2><i class="fas fa-folder-open"></i> Budgeting</h2>
+                    <div id="budgetContainer" class="results-grid"></div>
+            </div>
+            </section>
+
+            <!-- Forecasting -->
+            <section id="forecasting-section" class="content-section">
+                <div class="upload-section">
+                    <h2><i class="fas fa-chart-area"></i> Forecasting</h2>
+                    <div id="forecastingContainer" class="results-grid"></div>
+                    </div>
+            </section>
+
+            <!-- AI Insights -->
+            <section id="insights-section" class="content-section">
+                <div class="upload-section">
+                    <h2><i class="fas fa-brain"></i> AI Insights & Recommendations</h2>
+                    <div id="aiInsightsContainer" class="results-grid">
+                        <div class="result-card"><div class="result-title">No insights available</div></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Upload Section -->
+            <section id="upload-section" class="content-section">
+                <div class="upload-section">
+                    <h2><i class="fas fa-upload"></i> Upload Financial Data</h2>
+                    <p>Upload CSV, Excel, PDF files or take a photo of your documents for AI-powered analysis.</p>
+                    
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                        <div class="upload-text">
+                            Drag & drop your files here or click to browse
+                </div>
+                        <div class="upload-buttons">
+                            <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                                <i class="fas fa-file"></i> Choose File
+                            </button>
+                            <button class="btn btn-secondary" onclick="openCamera()">
+                                <i class="fas fa-camera"></i> Take Photo
+                            </button>
+            </div>
+                        <input type="file" id="fileInput" class="file-input" accept=".csv,.xlsx,.xls,.pdf,.jpg,.jpeg,.png,.tiff" onchange="handleFileUpload(this)">
+        </div>
+            </div>
+            
+                <!-- Progress Section -->
+                <div class="progress-section" id="progressSection">
+                    <h3><i class="fas fa-spinner fa-spin"></i> Processing Your Data</h3>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="progress-text" id="progressText">Initializing...</div>
+                </div>
+            </section>
+
+            <!-- Reports Section -->
+            <section id="reports-section" class="content-section">
+                <div class="upload-section">
+                    <h2><i class="fas fa-file-pdf"></i> Reports & Exports</h2>
+                    <p>Generate professional PDF reports and export your data in various formats.</p>
+                    
+                    <!-- Date Filtering Controls -->
+                    <div class="filter-controls">
+                        <div class="filter-group">
+                            <label for="dateRange">Date Range:</label>
+                            <select id="dateRange" onchange="updateDateFilter()">
+                                <option value="all">All Time</option>
+                                <option value="this-month">This Month</option>
+                                <option value="last-month">Last Month</option>
+                                <option value="this-quarter">This Quarter</option>
+                                <option value="this-year">This Year</option>
+                                <option value="custom">Custom Range</option>
+                            </select>
+                </div>
+                
+                        <div class="filter-group" id="customDateRange" style="display: none;">
+                            <label for="startDate">From:</label>
+                            <input type="date" id="startDate" onchange="updateDateFilter()">
+                            <label for="endDate">To:</label>
+                            <input type="date" id="endDate" onchange="updateDateFilter()">
+        </div>
+
+                        <div class="filter-group">
+                            <label for="monthFilter">Filter by Month:</label>
+                            <select id="monthFilter" onchange="filterByMonth()">
+                                <option value="all">All Months</option>
+                                <option value="2024-01">January 2024</option>
+                                <option value="2024-02">February 2024</option>
+                                <option value="2024-03">March 2024</option>
+                                <option value="2024-04">April 2024</option>
+                                <option value="2024-05">May 2024</option>
+                                <option value="2024-06">June 2024</option>
+                                <option value="2024-07">July 2024</option>
+                                <option value="2024-08">August 2024</option>
+                                <option value="2024-09">September 2024</option>
+                                <option value="2024-10">October 2024</option>
+                                <option value="2024-11">November 2024</option>
+                                <option value="2024-12">December 2024</option>
+                            </select>
+                    </div>
+                </div>
+                
+                    <!-- Invoice Management -->
+                    <div class="invoice-management">
+                        <h3><i class="fas fa-receipt"></i> Invoice Management</h3>
+                        <p style="margin-bottom: 1rem; color: #64748b; font-size: 0.9rem;">
+                            <i class="fas fa-info-circle"></i> 
+                            <strong>Exclude:</strong> Temporarily remove from calculations • 
+                            <strong>Delete:</strong> Permanently remove the file
+                        </p>
+                        <div class="invoice-list" id="invoiceList">
+                            <p class="no-data">No invoices loaded. Upload data to see invoices.</p>
+                    </div>
+                </div>
+                
+                    <!-- Monthly Summary -->
+                    <div class="monthly-summary">
+                        <h3><i class="fas fa-calendar-alt"></i> Monthly Summary</h3>
+                        <div class="monthly-grid" id="monthlyGrid">
+                            <p class="no-data">No monthly data available.</p>
+                    </div>
+                </div>
+                
+                    <!-- Export Controls -->
+                    <div class="export-controls">
+                        <h3><i class="fas fa-download"></i> Export Options</h3>
+                        <div class="upload-buttons">
+                            <button class="btn btn-primary" onclick="generateReport()">
+                                <i class="fas fa-file-pdf"></i> Generate PDF Report
+                            </button>
+                            <button class="btn btn-secondary" onclick="exportData()">
+                                <i class="fas fa-file-csv"></i> Export CSV Data
+                            </button>
+                            <button class="btn btn-success" onclick="exportMonthlyData()">
+                                <i class="fas fa-calendar"></i> Export Monthly Data
+                            </button>
+                            <button class="btn btn-info" onclick="exportFilteredData()">
+                                <i class="fas fa-filter"></i> Export Filtered Data
+                            </button>
+                    </div>
+                </div>
+            </div>
+            </section>
+
+            <!-- Settings Section -->
+            <section id="settings-section" class="content-section">
+                <div class="upload-section">
+                    <h2><i class="fas fa-cog"></i> Settings</h2>
+                    <p>Configure your dashboard preferences and account settings.</p>
+                    
+                    <div class="upload-buttons">
+                        <button class="btn btn-primary" onclick="toggleLanguage()">
+                            <i class="fas fa-language"></i> Toggle Language
+                        </button>
+                        <button class="btn btn-secondary" onclick="clearData()">
+                            <i class="fas fa-trash"></i> Clear All Data
+                        </button>
+                        </div>
+                        </div>
+            </section>
+        </main>
+                </div>
+
+    <!-- Camera Modal -->
+    <div class="camera-modal" id="cameraModal">
+        <div class="camera-content">
+            <h3>Take Photo of Document</h3>
+            <div class="camera-preview" id="cameraPreview">
+                <i class="fas fa-camera" style="font-size: 3rem; color: #ccc;"></i>
+                <div style="margin-top: 1rem; color: #666;">Camera preview will appear here</div>
+                        </div>
+            <div class="camera-controls">
+                <button class="camera-btn primary" onclick="startCamera()">
+                    <i class="fas fa-camera"></i> Start Camera
+                </button>
+                <button class="camera-btn secondary" onclick="capturePhoto()" id="captureBtn" style="display: none;">
+                    <i class="fas fa-camera"></i> Capture
+                </button>
+                <button class="camera-btn danger" onclick="closeCamera()">
+                    <i class="fas fa-times"></i> Close
+                </button>
+                </div>
+            </div>
+        </div>
+
+    <script>
+        let currentUser = null;
+        let currentStream = null;
+        let capturedImage = null;
+        let financialChart = null;
+
+        // Normalization helpers for inconsistent API shapes
+        function unwrapKey(root, key, maxDepth = 3) {
+            let cur = root ? root[key] : null;
+            let depth = 0;
+            while (cur && typeof cur === 'object' && cur[key] !== undefined && depth < maxDepth) {
+                cur = cur[key];
+                depth++;
+            }
+            return cur || null;
+        }
+
+        function normalizeModules(data) {
+            const balanceSheet = unwrapKey(data, 'balanceSheet');
+            const profitLoss = unwrapKey(data, 'profitLoss');
+            const ledgerNested = unwrapKey(data, 'ledgerAccounts');
+            const ledgerAccounts = ledgerNested && (ledgerNested.accounts || ledgerNested);
+
+            const assetsLiabilities = data?.assetsLiabilities?.assetsLiabilities || data?.assetsLiabilities || null;
+            const debtsLoans = data?.debtsLoans || null;
+            const taxesVAT = data?.taxesVAT || null;
+            const budget = data?.budget || null;
+            const forecasting = data?.forecasting || null;
+            const insights = data?.aiInsights || data?.insights || null;
+
+            return { balanceSheet, profitLoss, ledgerAccounts, assetsLiabilities, debtsLoans, taxesVAT, budget, forecasting, insights };
+        }
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check authentication
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/';
+                    return;
+                }
+
+            // Load user data
+            currentUser = JSON.parse(localStorage.getItem('user'));
+            if (currentUser) {
+                document.getElementById('userName').textContent = currentUser.firstName || 'User';
+                document.getElementById('userAvatar').textContent = (currentUser.firstName || 'U').charAt(0).toUpperCase();
+            }
+
+            // Initialize chart
+            initializeChart();
+            
+            // Setup navigation
+            setupNavigation();
+            
+            // Setup file upload
+            setupFileUpload();
+            
+            // Initialize reports functionality
+            initializeReports();
+
+            // In dev/local or when ?test=1, auto-load latest data so we can verify all tabs
+            maybeAutoLoadData();
+            
+            // Debug language button visibility
+            setTimeout(debugLanguageButton, 2000);
+        });
+
+        // Navigation
+        function setupNavigation() {
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('.content-section');
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetSection = link.dataset.section;
+                    
+                    // Update active nav
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+                    
+                    // Show target section
+                    sections.forEach(s => s.classList.remove('active'));
+                    document.getElementById(targetSection + '-section').classList.add('active');
+                });
+            });
+        }
+
+        // File upload setup
+        function setupFileUpload() {
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+
+            // Drag and drop
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFileUpload({ files: files });
+                }
+            });
+
+            // Click to upload
+            uploadArea.addEventListener('click', () => {
+                fileInput.click();
+            });
+        }
+
+        // File upload handler
+        function handleFileUpload(input) {
+            const file = input.files ? input.files[0] : input;
+            if (!file) return;
+
+            console.log('📁 Uploading file:', file.name);
+                
+                const formData = new FormData();
+                formData.append('file', file);
+
+            showProgress();
+            updateProgress(10, 'Uploading file...');
+            
+            fetch('/api/accounting/upload', {
+                    method: 'POST',
+                    body: formData
+            })
+            .then(response => response.json())
+            .then(result => {
+                console.log('📊 Upload result:', result);
+                
+                if (result.success) {
+                    updateProgress(100, 'Processing complete!');
+                setTimeout(async () => {
+                    hideProgress();
+                        // Use aggregated data from all files
+                        const aggregatedData = await aggregateAllData();
+                        if (aggregatedData) {
+                            showResults(aggregatedData);
+                            currentData = aggregatedData;
+            } else {
+                            // Fallback to current file
+                            showResults(result.data || result);
+                            currentData = result.data || result;
+                        }
+                        initializeReports();
+                        // Switch to overview tab
+                        switchToTab('overview');
+                }, 1000);
+                } else {
+                    throw new Error(result.message || 'Upload failed');
+                }
+            })
+            .catch(error => {
+                console.error('Upload error:', error);
+                updateProgress(0, 'Upload failed: ' + error.message);
+                        setTimeout(() => {
+                    hideProgress();
+                        }, 2000);
+            });
+        }
+
+        // Progress functions
+        function showProgress() {
+            document.getElementById('progressSection').style.display = 'block';
+        }
+
+        function hideProgress() {
+            document.getElementById('progressSection').style.display = 'none';
+        }
+
+        function updateProgress(percentage, message) {
+            document.getElementById('progressFill').style.width = percentage + '%';
+            document.getElementById('progressText').textContent = message;
+        }
+
+        // Auto load latest data for testing
+        async function maybeAutoLoadData() {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+                if (!isLocal && !urlParams.get('test')) return;
+
+                const token = localStorage.getItem('token');
+                const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
+                let res = await fetch('/api/accounting/data', { headers });
+                let list = [];
+                if (res.ok) list = await res.json();
+
+                if (!Array.isArray(list) || list.length === 0) {
+                    // preload sample data
+                    await fetch('/api/dev/preload', { method: 'POST' });
+                    res = await fetch('/api/accounting/data', { headers });
+                    list = res.ok ? await res.json() : [];
+                }
+
+                if (Array.isArray(list) && list.length > 0) {
+                    // Use aggregated data from all files instead of just the latest
+                    const aggregatedData = await aggregateAllData();
+                    if (aggregatedData) {
+                        showResults(aggregatedData);
+                        // Store current data for reports and refresh reports
+                        currentData = aggregatedData;
+                        initializeReports();
+                        switchToTab('overview');
+                    } else {
+                        // Fallback to latest file if aggregation fails
+                        const latest = list.sort((a,b) => new Date(b.uploadDate||0) - new Date(a.uploadDate||0))[0];
+                        if (latest) {
+                            showResults(latest);
+                            currentData = latest;
+                            initializeReports();
+                            switchToTab('overview');
+                        }
+                    }
+                }
+            } catch (e) {
+                console.warn('Auto-load data skipped:', e);
+            }
+        }
+
+        // Aggregate data from all uploaded files
+        async function aggregateAllData() {
+            try {
+                const token = localStorage.getItem('token');
+                const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
+                const response = await fetch('/api/accounting/data', { headers });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch data');
+                }
+                
+                const allFiles = await response.json();
+                
+                if (!Array.isArray(allFiles) || allFiles.length === 0) {
+                    return null;
+                }
+
+                // Aggregate all data from all files
+                let aggregatedData = {
+                    id: 'aggregated',
+                    filename: `${allFiles.length} files aggregated`,
+                    uploadDate: new Date().toISOString(),
+                    data: [],
+                    totalIncome: 0,
+                    totalExpenses: 0,
+                    netCashflow: 0,
+                    transactionCount: 0,
+                    income: [],
+                    expenses: [],
+                    // Aggregate financial modules
+                    balanceSheet: null,
+                    profitLoss: null,
+                    ledgerAccounts: null,
+                    forecasting: null,
+                    aiInsights: null,
+                    alerts: [],
+                    highlights: []
+                };
+
+                allFiles.forEach(file => {
+                    // Handle different data structures for different file types
+                    let transactions = [];
+                    
+                    if (file.data && Array.isArray(file.data)) {
+                        // CSV/Excel files: data is array of transactions
+                        transactions = file.data;
+                    } else if (file.expenses || file.income) {
+                        // PDF/Image files: transactions are in expenses and income arrays
+                        transactions = [
+                            ...(file.expenses || []),
+                            ...(file.income || [])
+                        ];
+                    } else if (file.processed && file.processed.expenses) {
+                        // Fallback: check processed data
+                        transactions = [
+                            ...(file.processed.expenses || []),
+                            ...(file.processed.income || [])
+                        ];
+                    }
+                    
+                    aggregatedData.data = aggregatedData.data.concat(transactions);
+                    
+                    // Aggregate financial metrics
+                    aggregatedData.totalIncome += file.totalIncome || file.processed?.totalIncome || 0;
+                    aggregatedData.totalExpenses += file.totalExpenses || file.processed?.totalExpenses || 0;
+                    aggregatedData.transactionCount += transactions.length;
+                    
+                    // Aggregate income and expenses
+                    if (file.income && Array.isArray(file.income)) {
+                        aggregatedData.income = aggregatedData.income.concat(file.income);
+                    }
+                    if (file.expenses && Array.isArray(file.expenses)) {
+                        aggregatedData.expenses = aggregatedData.expenses.concat(file.expenses);
+                    }
+                    
+                    // Aggregate alerts and highlights
+                    if (file.alerts && Array.isArray(file.alerts)) {
+                        aggregatedData.alerts = aggregatedData.alerts.concat(file.alerts);
+                    }
+                    if (file.highlights && Array.isArray(file.highlights)) {
+                        aggregatedData.highlights = aggregatedData.highlights.concat(file.highlights);
+                    }
+                });
+
+                aggregatedData.netCashflow = aggregatedData.totalIncome - aggregatedData.totalExpenses;
+
+                return aggregatedData;
+                } catch (error) {
+                console.error('Error aggregating data:', error);
+                return null;
+            }
+        }
+
+        // Results display
+        function showResults(data) {
+            console.log('📊 Displaying results:', data);
+            const n = normalizeModules(data);
+            
+            // Update financial metrics
+            const totalsSrc = data?.cashflow?.totals || data?.processed || data || {};
+            if (totalsSrc) {
+                const totalIncome = totalsSrc.totalIncome ?? totalsSrc.totalInflow ?? data.totalIncome ?? 0;
+                const totalExpenses = totalsSrc.totalExpenses ?? totalsSrc.totalOutflow ?? data.totalExpenses ?? 0;
+                const netCashflow = totalsSrc.netCashflow ?? (totalIncome - totalExpenses) ?? 0;
+                const transactionCount = totalsSrc.transactionCount ?? data.transactionCount ?? 0;
+
+                document.getElementById('totalIncome').textContent = formatCurrency(totalIncome);
+                document.getElementById('totalExpenses').textContent = formatCurrency(totalExpenses);
+                document.getElementById('netCashflow').textContent = formatCurrency(netCashflow);
+                document.getElementById('transactionCount').textContent = transactionCount;
+                
+                // Update net cashflow color
+                const netCashflowEl = document.getElementById('netCashflow');
+                if (netCashflow >= 0) {
+                    netCashflowEl.className = 'result-value success';
+                    } else {
+                    netCashflowEl.className = 'result-value error';
+                }
+            }
+
+                // Assets & Liabilities
+            if (n.assetsLiabilities) {
+                const a = n.assetsLiabilities;
+                const totalAssets = a.totalAssets ?? (Array.isArray(a.assets) ? a.assets.reduce((s,x)=>s+(x.amount||0),0) : 0);
+                const totalLiabilities = a.totalLiabilities ?? (Array.isArray(a.liabilities) ? a.liabilities.reduce((s,x)=>s+(x.amount||0),0) : 0);
+                const netWorth = a.netWorth ?? (totalAssets - totalLiabilities);
+                const dta = a.debtToAssetRatio ?? (totalAssets ? (totalLiabilities/totalAssets*100) : 0);
+                if (document.getElementById('totalAssets')) document.getElementById('totalAssets').textContent = formatCurrency(totalAssets);
+                if (document.getElementById('totalLiabilities')) document.getElementById('totalLiabilities').textContent = formatCurrency(totalLiabilities);
+                if (document.getElementById('netWorth')) document.getElementById('netWorth').textContent = formatCurrency(netWorth);
+                if (document.getElementById('debtToAssetRatio')) document.getElementById('debtToAssetRatio').textContent = formatPercentage(dta);
+                }
+
+                // Debts & Loans
+            if (n.debtsLoans) {
+                const d = n.debtsLoans;
+                if (document.getElementById('totalDebts')) document.getElementById('totalDebts').textContent = formatCurrency(d.totalDebts || 0);
+                if (document.getElementById('totalLoans')) document.getElementById('totalLoans').textContent = formatCurrency(d.totalLoans || 0);
+                if (document.getElementById('netDebt')) document.getElementById('netDebt').textContent = formatCurrency(d.netDebt || 0);
+                if (document.getElementById('debtToIncomeRatio')) document.getElementById('debtToIncomeRatio').textContent = formatPercentage(d.debtToIncomeRatio || 0);
+                }
+
+                // Taxes & VAT
+            if (n.taxesVAT) {
+                const t = n.taxesVAT;
+                if (document.getElementById('totalTaxes')) document.getElementById('totalTaxes').textContent = formatCurrency(t.totalTaxes || 0);
+                if (document.getElementById('totalVAT')) document.getElementById('totalVAT').textContent = formatCurrency(t.totalVAT || 0);
+                if (document.getElementById('effectiveTaxRate')) document.getElementById('effectiveTaxRate').textContent = formatPercentage(t.effectiveTaxRate || 0);
+                if (document.getElementById('upcomingDeadlines')) document.getElementById('upcomingDeadlines').textContent = t.upcomingDeadlines || 0;
+            }
+
+            // Balance Sheet (robust parsing) — render detailed panels like design
+            if (n.balanceSheet) {
+                const container = document.getElementById('balanceSheetContainer');
+                if (container) {
+                    const node = n.balanceSheet;
+                    const get = (obj, keys) => keys.reduce((acc,k)=> acc ?? (obj ? obj[k] : null), null);
+                    const assetsNode = node.assets ?? node.Assets ?? node.asset ?? node.accountAssets ?? null;
+                    const liabNode = node.liabilities ?? node.Liabilities ?? node.debts ?? node.accountLiabilities ?? null;
+                    const eqNode = node.equity ?? node.Equity ?? node.accountEquity ?? null;
+
+                    const sumNode = (v) => {
+                        if (Array.isArray(v)) return v.reduce((s,x)=> s + (typeof x === 'number' ? x : Number((x&&x.amount) ?? (x&&x.value) ?? 0)), 0);
+                        if (v && typeof v === 'object') {
+                            if (Array.isArray(v.items)) return sumNode(v.items);
+                            if (typeof v.total === 'number') return v.total;
+                            return Object.values(v).reduce((s,val)=> s + (typeof val === 'number' ? val : Number((val&&val.amount) ?? (val&&val.value) ?? 0)), 0);
+                        }
+                        return Number(v) || 0;
+                    };
+                    const countNode = (v) => Array.isArray(v) ? v.length : (v && typeof v === 'object' ? (Array.isArray(v.items) ? v.items.length : Object.keys(v).length) : 0);
+
+                    const totalAssets = sumNode(assetsNode);
+                    const totalLiab = sumNode(liabNode);
+                    let totalEq = sumNode(eqNode);
+                    if (!totalEq && (Number.isFinite(totalAssets) && Number.isFinite(totalLiab))) {
+                        totalEq = totalAssets - totalLiab;
+                    }
+                    const assetsCount = countNode(assetsNode);
+                    const liabCount = countNode(liabNode);
+                    const eqCount = countNode(eqNode);
+
+                    const currentAssets = (node.currentAssets?.total) ?? (node.current?.total) ?? null;
+                    const fixedAssets = (node.fixedAssets?.total) ?? (node.fixed?.total) ?? null;
+                    const currentLiab = (node.currentLiabilities?.total) ?? (node.currentLiabilities) ?? null;
+                    const longLiab = (node.longTermLiabilities?.total) ?? (node.longTermLiabilities) ?? 0;
+                    const retained = (node.retainedEarnings?.total) ?? node.retainedEarnings ?? 0;
+                    const owners = (node.ownersEquity?.total) ?? node.ownersEquity ?? 0;
+
+                    container.innerHTML = `
+                        <div class=\"panel-grid\">
+                            <div class=\"panel-card\">
+                                <div class=\"panel-title\">💰 Assets</div>
+                                <div class=\"metric\"><div class=\"metric-label\">Current Assets:</div><div class=\"metric-value\">${formatCurrency(currentAssets ?? (totalAssets - (fixedAssets||0)))}</div></div>
+                                <div class=\"metric\"><div class=\"metric-label\">Fixed Assets:</div><div class=\"metric-value\">${formatCurrency(fixedAssets ?? 0)}</div></div>
+                                <div class=\"metric\"><div class=\"metric-label\">Total Assets:</div><div class=\"metric-value\">${formatCurrency(totalAssets)}</div></div>
+                            </div>
+                            <div class=\"panel-card\">
+                                <div class=\"panel-title\">📄 Liabilities</div>
+                                <div class=\"metric\"><div class=\"metric-label\">Current Liabilities:</div><div class=\"metric-value\">${formatCurrency(currentLiab ?? totalLiab)}</div></div>
+                                <div class=\"metric\"><div class=\"metric-label\">Long-term Liabilities:</div><div class=\"metric-value\">${formatCurrency(longLiab)}</div></div>
+                                <div class=\"metric\"><div class=\"metric-label\">Total Liabilities:</div><div class=\"metric-value\">${formatCurrency(totalLiab)}</div></div>
+                            </div>
+                            <div class=\"panel-card\">
+                                <div class=\"panel-title\">📈 Equity</div>
+                                <div class=\"metric\"><div class=\"metric-label\">Retained Earnings:</div><div class=\"metric-value\">${formatCurrency(retained)}</div></div>
+                                <div class=\"metric\"><div class=\"metric-label\">Owner's Equity:</div><div class=\"metric-value\">${formatCurrency(owners)}</div></div>
+                                <div class=\"metric\"><div class=\"metric-label\">Total Equity:</div><div class=\"metric-value\">${formatCurrency(totalEq)}</div></div>
+                            </div>
+                            <div class=\"panel-card\">
+                                <div class=\"panel-title\">📊 Financial Ratios</div>
+                                <div class=\"metric\"><div class=\"metric-label\">Current Ratio:</div><div class=\"metric-value\">${(currentAssets && currentLiab) ? (currentAssets/currentLiab).toFixed(2) : '—'}</div></div>
+                                <div class=\"metric\"><div class=\"metric-label\">Debt-to-Equity:</div><div class=\"metric-value\">${totalEq ? (totalLiab/totalEq).toFixed(2) : '—'}</div></div>
+                                <div class=\"metric\"><div class=\"metric-label\">Debt-to-Asset:</div><div class=\"metric-value\">${totalAssets ? (totalLiab/totalAssets).toFixed(2) : '—'}</div></div>
+                                <div class=\"metric\"><div class=\"metric-label\">Equity Ratio:</div><div class=\"metric-value\">${totalAssets ? (totalEq/totalAssets).toFixed(2) : '—'}</div></div>
+                            </div>
+                    </div>
+                `;
+                }
+            }
+
+            // Profit & Loss: detailed KPI panels with sparklines and ratios
+            if (document.getElementById('plContainer')) {
+                let rev = 0, exp = 0, ni = 0;
+                let cogs = 0, operating = 0, otherRev = 0, otherExp = 0;
+                let grossProfit = 0, operatingIncome = 0;
+
+                if (n.profitLoss) {
+                    const pl = n.profitLoss;
+                    rev = Number(pl.revenue?.total ?? pl.revenueTotal ?? 0) || 0;
+                    exp = Number(pl.costOfGoodsSold?.total ?? pl.expenses?.total ?? pl.expensesTotal ?? 0) || 0;
+                    cogs = Number(pl.costOfGoodsSold?.total ?? pl.cogs ?? 0) || 0;
+                    operating = Number(pl.operatingExpenses?.total ?? pl.operatingExpenses ?? 0) || 0;
+                    otherRev = Number(pl.revenue?.other ?? 0) || 0;
+                    otherExp = Number(pl.otherExpenses?.total ?? pl.expenses?.other ?? 0) || 0;
+                    grossProfit = Number(pl.grossProfit?.amount ?? (rev - cogs)) || (rev - cogs);
+                    operatingIncome = Number(pl.operatingIncome?.amount ?? (grossProfit - operating)) || (grossProfit - operating);
+                    ni = Number(pl.netIncome?.amount ?? (rev - exp)) || (rev - exp);
+                }
+                if (!rev && !exp) {
+                    // derive from transactions if module missing
+                    const sumIncome = (data.income||[]).reduce((s,i)=> s + (i.amount||0), 0);
+                    const sumExpenses = Math.abs((data.expenses||[]).reduce((s,e)=> s + (e.amount||0), 0));
+                    rev = sumIncome; exp = sumExpenses; ni = rev - exp;
+                    grossProfit = ni; operatingIncome = ni; // best-effort fallback
+                }
+                const incomeSpark = buildSparkline(monthlyTotals(data.income));
+                const expenseSpark = buildSparkline(monthlyTotals(data.expenses));
+                const gm = rev ? ((grossProfit / rev) * 100) : 0;
+                const om = rev ? ((operatingIncome / rev) * 100) : 0;
+                const nm = rev ? ((ni / rev) * 100) : 0;
+
+                document.getElementById('plContainer').innerHTML = `
+                    <div class=\"panel-grid\">
+                        <div class=\"panel-card\">
+                            <div class=\"panel-title\">📈 Revenue</div>
+                            <div class=\"metric\"><div class=\"metric-label\">Total:</div><div class=\"metric-value\">${formatCurrency(rev)}</div></div>
+                            <div class=\"metric\"><div class=\"metric-label\">Other:</div><div class=\"metric-value\">${formatCurrency(otherRev)}</div></div>
+                            <svg class=\"sparkline\" viewBox=\"0 0 100 36\"><path d=\"${incomeSpark}\" stroke=\"#0d9488\" stroke-width=\"2\" fill=\"none\"/></svg>
+                        </div>
+                        <div class=\"panel-card\">
+                            <div class=\"panel-title\">📉 Expenses</div>
+                            <div class=\"metric\"><div class=\"metric-label\">COGS:</div><div class=\"metric-value\">${formatCurrency(cogs)}</div></div>
+                            <div class=\"metric\"><div class=\"metric-label\">Operating:</div><div class=\"metric-value\">${formatCurrency(operating)}</div></div>
+                            <div class=\"metric\"><div class=\"metric-label\">Other:</div><div class=\"metric-value\">${formatCurrency(otherExp)}</div></div>
+                            <div class=\"metric\"><div class=\"metric-label\">Total:</div><div class=\"metric-value\">${formatCurrency(exp)}</div></div>
+                            <svg class=\"sparkline\" viewBox=\"0 0 100 36\"><path d=\"${expenseSpark}\" stroke=\"#e74c3c\" stroke-width=\"2\" fill=\"none\"/></svg>
+                        </div>
+                        <div class=\"panel-card\">
+                            <div class=\"panel-title\">💹 Profit</div>
+                            <div class=\"metric\"><div class=\"metric-label\">Gross Profit:</div><div class=\"metric-value\">${formatCurrency(grossProfit)}</div></div>
+                            <div class=\"metric\"><div class=\"metric-label\">Operating Income:</div><div class=\"metric-value\">${formatCurrency(operatingIncome)}</div></div>
+                            <div class=\"metric\"><div class=\"metric-label\">Net Income:</div><div class=\"metric-value\">${formatCurrency(ni)}</div></div>
+                            <div class=\"kv-row\"><span class=\"chip ${ni>=0?'success':'error'}\">${ni>=0?'Profitable':'Loss'}</span></div>
+                        </div>
+                        <div class=\"panel-card\">
+                            <div class=\"panel-title\">📊 Margins</div>
+                            <div class=\"metric\"><div class=\"metric-label\">Gross Margin:</div><div class=\"metric-value\">${formatPercentage(gm)}</div></div>
+                            <div class=\"metric\"><div class=\"metric-label\">Operating Margin:</div><div class=\"metric-value\">${formatPercentage(om)}</div></div>
+                            <div class=\"metric\"><div class=\"metric-label\">Net Margin:</div><div class=\"metric-value\">${formatPercentage(nm)}</div></div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Ledger top categories (with fallback and filtering)
+            if (document.getElementById('ledgerContainer')) {
+                let accountsObj = null;
+                if (n.ledgerAccounts) {
+                    const cand = n.ledgerAccounts.accounts || n.ledgerAccounts;
+                    const valid = Object.fromEntries(Object.entries(cand||{}).filter(([,v]) => v && (typeof v.balance === 'number' || typeof v.debits === 'number' || typeof v.credits === 'number')));
+                    if (Object.keys(valid).length) accountsObj = valid;
+                }
+                if (!accountsObj) {
+                    // Derive from transactions by category
+                    const map = new Map();
+                    for (const t of (data.income||[])) {
+                        const k = t.category || 'Income';
+                        const curr = map.get(k) || { debits: 0, credits: 0, balance: 0 };
+                        curr.credits += (t.amount||0);
+                        curr.balance += (t.amount||0);
+                        map.set(k, curr);
+                    }
+                    for (const t of (data.expenses||[])) {
+                        const k = t.category || 'Expense';
+                        const curr = map.get(k) || { debits: 0, credits: 0, balance: 0 };
+                        curr.debits += Math.abs(t.amount||0);
+                        curr.balance += (t.amount||0);
+                        map.set(k, curr);
+                    }
+                    accountsObj = Object.fromEntries([...map.entries()].sort((a,b)=> Math.abs(b[1].balance) - Math.abs(a[1].balance)).slice(0,4));
+                }
+                const values = Object.values(accountsObj||{});
+                const maxAbs = Math.max(1, ...values.map(v => Math.abs(v.balance||0)));
+                const items = Object.entries(accountsObj||{}).slice(0,4).map(([name,acc]) => `
+                    <div class=\"panel-card\">
+                        <div class=\"panel-title\">📚 ${name}</div>
+                        <div class=\"metric\"><div class=\"metric-label\">Debits:</div><div class=\"metric-value\">${formatCurrency(acc.debits||0)}</div></div>
+                        <div class=\"metric\"><div class=\"metric-label\">Credits:</div><div class=\"metric-value\">${formatCurrency(acc.credits||0)}</div></div>
+                        <div class=\"metric\"><div class=\"metric-label\">Balance:</div><div class=\"metric-value\">${formatCurrency(acc.balance||0)}</div></div>
+                        <div class=\"progress-outer\"><div class=\"progress-inner\" style=\"width:${Math.min(100, Math.abs(acc.balance||0)/maxAbs*100)}%\"></div></div>
+                    </div>
+                `).join('');
+                document.getElementById('ledgerContainer').innerHTML = `<div class=\"panel-grid\">${items}</div>`;
+            }
+
+            // Budget (with fallback and nicer UI)
+            if (document.getElementById('budgetContainer')) {
+                let budgeted = n.budget?.totalBudget ?? 0;
+                let actual = n.budget?.totalActual ?? 0;
+                if (!budgeted && !actual) {
+                    const sumIncome = (data.income||[]).reduce((s,i)=> s + (i.amount||0), 0);
+                    const sumExpenses = Math.abs((data.expenses||[]).reduce((s,e)=> s + (e.amount||0), 0));
+                    budgeted = sumIncome; actual = sumExpenses;
+                }
+                const variance = budgeted - actual;
+                const usedPct = budgeted ? Math.min(100, Math.max(0, (actual / budgeted) * 100)) : 0;
+                const status = variance >= 0 ? (usedPct < 80 ? 'Under Budget' : 'On Track') : 'Over Budget';
+                const chipClass = variance >= 0 ? (usedPct < 80 ? 'success' : 'warning') : 'error';
+                document.getElementById('budgetContainer').innerHTML = `
+                    <div class="result-card">
+                        <div class="result-title">Budgeted</div>
+                        <div class="result-value">${formatCurrency(budgeted)}</div>
+                        <div class="kv-row"><span class="chip ${chipClass}">${status}</span></div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-title">Actual</div>
+                        <div class="result-value">${formatCurrency(actual)}</div>
+                        <div class="progress-outer"><div class="progress-inner" style="width:${usedPct}%"></div></div>
+                        <div class="kv-row">${usedPct.toFixed(0)}% of budget used</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-title">Variance</div>
+                        <div class="result-value">${formatCurrency(variance)}</div>
+                        <div class="kv-row">${variance >= 0 ? 'Remaining budget' : 'Over run'}</div>
+                    </div>
+                `;
+            }
+
+            // Forecasting (with fallback) — projections vs current
+            if (document.getElementById('forecastingContainer')) {
+                let projIncome = n.forecasting?.projectedIncome ?? 0;
+                let projExpenses = n.forecasting?.projectedExpenses ?? 0;
+                if (!projIncome && !projExpenses) {
+                    const sumIncome = (data.income||[]).reduce((s,i)=> s + (i.amount||0), 0);
+                    const sumExpenses = Math.abs((data.expenses||[]).reduce((s,e)=> s + (e.amount||0), 0));
+                    projIncome = sumIncome * 1.05;
+                    projExpenses = sumExpenses * 1.03;
+                }
+                const currIncome = (data.income||[]).reduce((s,i)=> s + (i.amount||0), 0);
+                const currExp = Math.abs((data.expenses||[]).reduce((s,e)=> s + (e.amount||0), 0));
+                const incomeGrowth = currIncome ? ((projIncome - currIncome) / currIncome) * 100 : 0;
+                const expenseGrowth = currExp ? ((projExpenses - currExp) / currExp) * 100 : 0;
+                const projNet = projIncome - projExpenses;
+                const netGrowth = (currIncome - currExp) ? ((projNet - (currIncome - currExp)) / Math.abs(currIncome - currExp)) * 100 : 0;
+
+                document.getElementById('forecastingContainer').innerHTML = `
+                    <div class=\"panel-grid\">
+                        <div class=\"panel-card\">
+                            <div class=\"panel-title\">🔮 Projections</div>
+                            <div class=\"metric\"><div class=\"metric-label\">Projected Income:</div><div class=\"metric-value\">${formatCurrency(projIncome)}</div></div>
+                            <div class=\"metric\"><div class=\"metric-label\">Projected Expenses:</div><div class=\"metric-value\">${formatCurrency(projExpenses)}</div></div>
+                            <div class=\"metric\"><div class=\"metric-label\">Projected Net:</div><div class=\"metric-value\">${formatCurrency(projNet)}</div></div>
+                        </div>
+                        <div class=\"panel-card\">
+                            <div class=\"panel-title\">📈 Change vs Current</div>
+                            <div class=\"metric\"><div class=\"metric-label\">Income Growth:</div><div class=\"metric-value\">${formatPercentage(incomeGrowth)}</div></div>
+                            <div class=\"metric\"><div class=\"metric-label\">Expense Growth:</div><div class=\"metric-value\">${formatPercentage(expenseGrowth)}</div></div>
+                            <div class=\"metric\"><div class=\"metric-label\">Net Growth:</div><div class=\"metric-value\">${formatPercentage(netGrowth)}</div></div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // AI Insights (fallback rules with nicer UI)
+            {
+                const container = document.getElementById('aiInsightsContainer');
+                if (container) {
+                    const insights = (n.insights && (n.insights.insights || n.insights)) || {};
+                    const recommendations = Array.isArray(insights.recommendations) ? insights.recommendations : [];
+                    const sumIncome = (data.income||[]).reduce((s,i)=> s + (i.amount||0), 0);
+                    const sumExpenses = Math.abs((data.expenses||[]).reduce((s,e)=> s + (e.amount||0), 0));
+                    const margin = sumIncome ? ((sumIncome - sumExpenses)/sumIncome)*100 : 0;
+                    const health = insights.financialHealth || (margin < 10 ? 'Needs Improvement - Low Margin' : (margin < 25 ? 'Fair - Monitor Spending' : 'Good - Healthy Performance'));
+
+                    let cardsHtml = `<div class=\"insight-card\"><div class=\"insight-title\">💡 Financial Health</div><div class=\"insight-desc\">${health}</div></div>`;
+                    const addRec = (text) => { cardsHtml += `<div class=\"insight-card\"><div class=\"insight-title\">✅ Recommendation</div><div class=\"insight-desc\">${text}</div></div>`; };
+
+                    if (recommendations.length > 0) {
+                        recommendations.slice(0,2).forEach(r => addRec(r.description || r.title || 'Consider cost optimization and revenue growth opportunities.'));
+                    } else {
+                        if (sumExpenses > sumIncome * 0.8) addRec('Expenses are high relative to income. Review top expense categories and set cost caps.');
+                        if (sumIncome < 10000) addRec('Revenue is concentrated in a few clients. Consider client acquisition to diversify income.');
+                        addRec('Set monthly budgets for top 3 categories and track adherence.');
+                    }
+                    container.innerHTML = `<div class=\"insight-grid\">${cardsHtml}</div>`;
+                }
+            }
+            
+            // Update chart
+            updateChart(data);
+            
+            // Show alerts
+            showAlerts(data.alerts || []);
+
+            // Populate Financial Analysis panels
+            const incomeListEl = document.getElementById('topIncomeList');
+            const expenseListEl = document.getElementById('topExpenseList');
+            const incomes = (data.income || []).slice(0,5);
+            const expenses = (data.expenses || []).slice(0,5).map(e => ({ description: e.description || e.category || 'Expense', amount: Math.abs(e.amount||0) }));
+
+            const sumIncome = (data.income||[]).reduce((s,i)=> s + (i.amount||0), 0);
+            const sumExpenses = Math.abs((data.expenses||[]).reduce((s,e)=> s + (e.amount||0), 0));
+            const profitMargin = (sumIncome ? ((sumIncome - sumExpenses)/sumIncome)*100 : 0);
+            const avgIncome = incomes.length ? (sumIncome / (data.income||[]).length) : 0;
+            const totalTx = (data.processed?.transactionCount) || (data.cashflow?.totals?.transactionCount) || data.transactionCount || 0;
+            const incomeTx = (data.income||[]).length;
+            const expenseTx = (data.expenses||[]).length;
+
+            const setText = (id, val) => { const el=document.getElementById(id); if (el) el.textContent = val; };
+            setText('faTotalIncome', formatCurrency(sumIncome || (data.totalIncome||0)));
+            setText('faTotalExpenses', formatCurrency(sumExpenses || (data.totalExpenses||0)));
+            setText('faNetCashflow', formatCurrency((sumIncome - sumExpenses)));
+            setText('faProfitMargin', formatPercentage(profitMargin));
+            setText('faTotalTransactions', totalTx);
+            setText('faIncomeTransactions', incomeTx);
+            setText('faExpenseTransactions', expenseTx);
+            setText('faAverageIncome', formatCurrency(avgIncome));
+
+            if (incomeListEl) {
+                incomeListEl.innerHTML = incomes.map(i => `
+                    <div class=\"list-row\"><div>${i.description || i.vendor || 'Income'}</div><div class=\"list-amount\">${formatCurrency(i.amount||0)}</div></div>
+                `).join('');
+            }
+            if (expenseListEl) {
+                expenseListEl.innerHTML = (data.expenses||[]).slice(0,5).map(e => `
+                    <div class=\"list-row\"><div>${e.description || e.category || 'Expense'}</div><div class=\"list-amount\">${formatCurrency(Math.abs(e.amount||0))}</div></div>
+                `).join('');
+            }
+        }
+
+        // Chart functions
+        function initializeChart() {
+            if (typeof Chart === 'undefined') {
+                setTimeout(initializeChart, 100);
+                    return;
+            }
+            
+            const ctx = document.getElementById('financialChart').getContext('2d');
+            financialChart = new Chart(ctx, {
+                type: 'doughnut',
+                    data: {
+                    labels: ['No Data'],
+                    datasets: [{
+                        data: [1],
+                        backgroundColor: ['#e9ecef'],
+                        borderWidth: 0
+                    }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                            position: 'bottom'
+                        }
+                        }
+                    }
+                });
+        }
+
+        function updateChart(data) {
+            if (typeof Chart === 'undefined') {
+                setTimeout(() => updateChart(data), 100);
+                    return;
+            }
+            
+            if (financialChart) {
+                financialChart.destroy();
+            }
+            
+            const ctx = document.getElementById('financialChart').getContext('2d');
+            
+            if (data.cashflow && data.cashflow.totals) {
+                const totals = data.cashflow.totals;
+                
+                financialChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Income', 'Expenses'],
+                        datasets: [{
+                            data: [totals.totalIncome || 0, totals.totalExpenses || 0],
+                            backgroundColor: ['#28a745', '#e74c3c'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Alerts function
+        function showAlerts(alerts) {
+            const container = document.getElementById('alertsContainer');
+            
+            if (alerts.length === 0) {
+                container.innerHTML = '<div class="no-alerts">No alerts at this time</div>';
+                return;
+            }
+            
+            container.innerHTML = alerts.map(alert => `
+                <div class="alert-item">
+                    <i class="fas fa-exclamation-triangle alert-icon"></i>
+                    <div class="alert-content">
+                        <div class="alert-title">${alert.title || 'Alert'}</div>
+                        <div class="alert-message">${alert.message}</div>
+                        </div>
+                        </div>
+            `).join('');
+        }
+
+        // Camera functions
+        function openCamera() {
+            document.getElementById('cameraModal').style.display = 'flex';
+        }
+
+        function closeCamera() {
+            document.getElementById('cameraModal').style.display = 'none';
+            if (currentStream) {
+                currentStream.getTracks().forEach(track => track.stop());
+                currentStream = null;
+            }
+        }
+
+        function startCamera() {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                    currentStream = stream;
+                    const video = document.createElement('video');
+                    video.srcObject = stream;
+                    video.style.width = '100%';
+                    video.style.height = '100%';
+                    video.style.objectFit = 'cover';
+                    video.style.borderRadius = '8px';
+                    
+                    const preview = document.getElementById('cameraPreview');
+                    preview.innerHTML = '';
+                    preview.appendChild(video);
+                    video.play();
+                    
+                    document.getElementById('captureBtn').style.display = 'inline-block';
+                })
+                .catch(error => {
+                    console.error('Camera error:', error);
+                    alert('Camera access denied or not available');
+                });
+        }
+
+        function capturePhoto() {
+            const video = document.querySelector('#cameraPreview video');
+            if (!video) return;
+            
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0);
+            
+            canvas.toBlob(blob => {
+                capturedImage = blob;
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(blob);
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.objectFit = 'cover';
+                img.style.borderRadius = '8px';
+                
+                const preview = document.getElementById('cameraPreview');
+                preview.innerHTML = '';
+                preview.appendChild(img);
+                
+                // Upload the captured image
+                const file = new File([blob], 'captured-image.jpg', { type: 'image/jpeg' });
+                handleFileUpload({ files: [file] });
+                
+                closeCamera();
+            }, 'image/jpeg', 0.8);
+        }
+
+        // Utility functions
+        function formatCurrency(amount) {
+            const num = Number(amount);
+            const safe = Number.isFinite(num) ? num : 0;
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD'
+            }).format(safe);
+        }
+
+        function formatPercentage(value) {
+            const num = Number(value || 0);
+            if (!isFinite(num)) return '0%';
+            return `${num.toFixed(1)}%`;
+        }
+
+        // Small util: build sparkline path from monthly points
+        function buildSparkline(values) {
+            if (!values || values.length === 0) return 'M0,18 L100,18'; // Default horizontal line
+            
+            // Filter out invalid values
+            const validValues = values.filter(v => typeof v === 'number' && isFinite(v));
+            if (validValues.length === 0) return 'M0,18 L100,18'; // Default horizontal line
+            
+            const w = 100, h = 36;
+            const min = Math.min(...validValues);
+            const max = Math.max(...validValues);
+            const rng = max - min || 1;
+            const step = validValues.length > 1 ? (w / (validValues.length - 1)) : w;
+            
+            const pts = validValues.map((v,i) => {
+                const x = i * step;
+                const y = h - ((v - min) / rng) * h;
+                return `${x},${y}`;
+            });
+            
+            if (pts.length === 0) return 'M0,18 L100,18'; // Default horizontal line
+            if (pts.length === 1) return `M${pts[0]} L100,${pts[0].split(',')[1]}`; // Single point to end
+            
+            return `M${pts[0]} L${pts.slice(1).join(' ')}`;
+        }
+
+        function monthlyTotals(transactions) {
+            const map = new Map();
+            for (const t of (transactions||[])) {
+                const d = new Date(t.date||Date.now());
+                const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+                map.set(key, (map.get(key)||0) + (t.amount||0));
+            }
+            const keys = [...map.keys()].sort();
+            return keys.map(k => map.get(k));
+        }
+
+        function switchToTab(tabName) {
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('.content-section');
+
+            navLinks.forEach(l => l.classList.remove('active'));
+            sections.forEach(s => s.classList.remove('active'));
+            
+            document.querySelector(`[data-section="${tabName}"]`).classList.add('active');
+            document.getElementById(`${tabName}-section`).classList.add('active');
+        }
+
+
+        // Global variables for reports functionality
+        let currentData = null;
+        let allInvoices = [];
+        let excludedInvoices = new Set();
+        let currentFilter = 'all';
+        let monthlyData = {};
+
+        // Initialize reports functionality
+        function initializeReports() {
+            loadInvoices();
+            populateMonthFilter();
+            updateMonthlySummary();
+        }
+
+        // Load invoices from all uploaded data
+        async function loadInvoices() {
+            try {
+                // Fetch all uploaded files from the server
+                const token = localStorage.getItem('token');
+                const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
+                const response = await fetch('/api/accounting/data', { headers });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch data');
+                }
+                
+                const allFiles = await response.json();
+                
+                if (!Array.isArray(allFiles) || allFiles.length === 0) {
+                    document.getElementById('invoiceList').innerHTML = '<p class="no-data">No invoices loaded. Upload data to see invoices.</p>';
+                return;
+            }
+
+                // Convert all files to invoice format
+                allInvoices = allFiles.map(file => {
+                    // Handle different data structures for different file types
+                    let transactions = [];
+                    
+                    if (file.data && Array.isArray(file.data)) {
+                        // CSV/Excel files: data is array of transactions
+                        transactions = file.data;
+                    } else if (file.expenses || file.income) {
+                        // PDF/Image files: transactions are in expenses and income arrays
+                        transactions = [
+                            ...(file.expenses || []),
+                            ...(file.income || [])
+                        ];
+                    } else if (file.processed && file.processed.expenses) {
+                        // Fallback: check processed data
+                        transactions = [
+                            ...(file.processed.expenses || []),
+                            ...(file.processed.income || [])
+                        ];
+                    }
+                    
+                    const totalIncome = file.totalIncome || file.processed?.totalIncome || 0;
+                    const totalExpenses = file.totalExpenses || file.processed?.totalExpenses || 0;
+                    
+                    return {
+                        id: file.id || 'unknown',
+                        name: file.filename || 'Unknown File',
+                        date: file.uploadDate || new Date().toISOString(),
+                        transactions: transactions,
+                        totalIncome: totalIncome,
+                        totalExpenses: totalExpenses,
+                        netAmount: totalIncome - totalExpenses
+                    };
+                });
+
+                renderInvoiceList();
+            } catch (error) {
+                console.error('Error loading invoices:', error);
+                document.getElementById('invoiceList').innerHTML = '<p class="no-data">Error loading invoices. Please refresh the page.</p>';
+            }
+        }
+
+        // Render invoice list
+        function renderInvoiceList() {
+            const container = document.getElementById('invoiceList');
+            if (allInvoices.length === 0) {
+                container.innerHTML = '<p class="no-data">No invoices loaded. Upload data to see invoices.</p>';
+                return;
+            }
+
+            container.innerHTML = allInvoices.map(invoice => {
+                const isExcluded = excludedInvoices.has(invoice.id);
+                const netAmount = invoice.totalIncome - invoice.totalExpenses;
+                const date = new Date(invoice.date).toLocaleDateString();
+                
+                return `
+                    <div class="invoice-item ${isExcluded ? 'excluded' : ''}" data-invoice-id="${invoice.id}">
+                        <div class="invoice-info">
+                            <div class="invoice-name">${invoice.name}</div>
+                            <div class="invoice-details">
+                                ${date} • ${invoice.transactions.length} transactions • Net: $${netAmount.toLocaleString()}
+                        </div>
+                        </div>
+                        <div class="invoice-actions">
+                            <button class="btn-small ${isExcluded ? 'btn-include' : 'btn-exclude'}" 
+                                    onclick="toggleInvoice('${invoice.id}')">
+                                ${isExcluded ? 'Include' : 'Exclude'}
+                            </button>
+                            <button class="btn-small btn-delete" 
+                                    onclick="deleteInvoice('${invoice.id}')"
+                                    title="Permanently delete this file">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        // Toggle invoice inclusion/exclusion
+        function toggleInvoice(invoiceId) {
+            if (excludedInvoices.has(invoiceId)) {
+                excludedInvoices.delete(invoiceId);
+            } else {
+                excludedInvoices.add(invoiceId);
+            }
+            renderInvoiceList();
+            updateMonthlySummary();
+        }
+
+        // Delete invoice permanently
+        async function deleteInvoice(invoiceId) {
+            const invoice = allInvoices.find(inv => inv.id === invoiceId);
+            if (!invoice) return;
+
+            // Show confirmation dialog
+            const confirmed = confirm(
+                `Are you sure you want to permanently delete "${invoice.name}"?\n\n` +
+                `This will remove:\n` +
+                `• ${invoice.transactions.length} transactions\n` +
+                `• All associated financial data\n` +
+                `• This action cannot be undone\n\n` +
+                `Click OK to delete or Cancel to keep the file.`
+            );
+
+            if (!confirmed) return;
+
+            try {
+                // Show loading state
+                const deleteBtn = document.querySelector(`[onclick="deleteInvoice('${invoiceId}')"]`);
+                if (deleteBtn) {
+                    deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                    deleteBtn.disabled = true;
+                }
+
+                // Call backend API to delete the file
+                const response = await fetch(`/api/accounting/delete/${invoiceId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('token'),
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    // Remove from local arrays
+                    allInvoices = allInvoices.filter(inv => inv.id !== invoiceId);
+                    excludedInvoices.delete(invoiceId);
+                    
+                    // Update currentData if this was the active file
+                    if (currentData && currentData.id === invoiceId) {
+                        currentData = null;
+                        // Clear all dashboard data
+                        clearDashboardData();
+                    }
+
+                    // Refresh the UI
+                    renderInvoiceList();
+                    updateMonthlySummary();
+                    
+                    // Show success message
+                    showNotification('File deleted successfully!', 'success');
+            } else {
+                    const error = await response.json();
+                    throw new Error(error.message || 'Failed to delete file');
+                }
+            } catch (error) {
+                console.error('Delete error:', error);
+                showNotification('Failed to delete file: ' + error.message, 'error');
+                
+                // Restore button state
+                const deleteBtn = document.querySelector(`[onclick="deleteInvoice('${invoiceId}')"]`);
+                if (deleteBtn) {
+                    deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+                    deleteBtn.disabled = false;
+                }
+            }
+        }
+
+        // Populate month filter with available months
+        function populateMonthFilter() {
+            if (!currentData || !currentData.data) return;
+
+            const months = new Set();
+            currentData.data.forEach(transaction => {
+                // Parse date safely - handle invalid dates
+                let date;
+                if (transaction.date) {
+                    date = new Date(transaction.date);
+                    // Check if date is valid (not NaN and not 1970)
+                    if (isNaN(date.getTime()) || date.getFullYear() === 1970) {
+                        // Use current date as fallback for invalid dates
+                        date = new Date();
+                    }
+                } else {
+                    // Use current date if no date provided
+                    date = new Date();
+                }
+                
+                const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                months.add(monthKey);
+            });
+
+            const monthSelect = document.getElementById('monthFilter');
+            const currentOptions = Array.from(monthSelect.options).map(opt => opt.value);
+            
+            months.forEach(month => {
+                if (!currentOptions.includes(month)) {
+                    const date = new Date(month + '-01');
+                    const monthName = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                    const option = document.createElement('option');
+                    option.value = month;
+                    option.textContent = monthName;
+                    monthSelect.appendChild(option);
+                }
+            });
+        }
+
+        // Update date filter
+        function updateDateFilter() {
+            const dateRange = document.getElementById('dateRange').value;
+            const customRange = document.getElementById('customDateRange');
+            
+            if (dateRange === 'custom') {
+                customRange.style.display = 'flex';
+            } else {
+                customRange.style.display = 'none';
+            }
+            
+            currentFilter = dateRange;
+            updateMonthlySummary();
+        }
+
+        // Filter by month
+        function filterByMonth() {
+            const monthFilter = document.getElementById('monthFilter').value;
+            currentFilter = monthFilter;
+            updateMonthlySummary();
+        }
+
+        // Update monthly summary
+        async function updateMonthlySummary() {
+            try {
+                // Get all transactions from all non-excluded files
+                const token = localStorage.getItem('token');
+                const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
+                const response = await fetch('/api/accounting/data', { headers });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch data');
+                }
+                
+                const allFiles = await response.json();
+                
+                if (!Array.isArray(allFiles) || allFiles.length === 0) {
+                    document.getElementById('monthlyGrid').innerHTML = '<p class="no-data">No monthly data available.</p>';
+                return;
+            }
+
+                // Aggregate transactions from all non-excluded files
+                let allTransactions = [];
+                allFiles.forEach(file => {
+                    if (!excludedInvoices.has(file.id)) {
+                        let transactions = [];
+                        
+                        if (file.data && Array.isArray(file.data)) {
+                            // CSV/Excel files: data is array of transactions
+                            transactions = file.data;
+                        } else if (file.expenses || file.income) {
+                            // PDF/Image files: transactions are in expenses and income arrays
+                            transactions = [
+                                ...(file.expenses || []),
+                                ...(file.income || [])
+                            ];
+                        } else if (file.processed && file.processed.expenses) {
+                            // Fallback: check processed data
+                            transactions = [
+                                ...(file.processed.expenses || []),
+                                ...(file.processed.income || [])
+                            ];
+                        }
+                        
+                        allTransactions = allTransactions.concat(transactions);
+                    }
+                });
+
+                if (allTransactions.length === 0) {
+                    document.getElementById('monthlyGrid').innerHTML = '<p class="no-data">No transactions available for the selected filter.</p>';
+                    return;
+                }
+
+                // Debug: Log first few transactions to see date format
+                console.log('🔍 Debug: First 3 transactions:', allTransactions.slice(0, 3).map(t => ({
+                    date: t.date,
+                    parsedDate: new Date(t.date),
+                    isValid: !isNaN(new Date(t.date).getTime()),
+                    year: new Date(t.date).getFullYear()
+                })));
+
+                // Filter transactions based on current settings
+                let filteredTransactions = allTransactions.filter(transaction => {
+                    // Apply date filter - parse date safely
+                    let transactionDate;
+                    if (transaction.date) {
+                        transactionDate = new Date(transaction.date);
+                        // Check if date is valid (not NaN and not 1970)
+                        if (isNaN(transactionDate.getTime()) || transactionDate.getFullYear() === 1970) {
+                            // Use current date as fallback for invalid dates
+                            transactionDate = new Date();
+                        }
+                    } else {
+                        // Use current date if no date provided
+                        transactionDate = new Date();
+                    }
+                    
+                    const now = new Date();
+                    
+                    switch (currentFilter) {
+                        case 'this-month':
+                            return transactionDate.getMonth() === now.getMonth() && 
+                                   transactionDate.getFullYear() === now.getFullYear();
+                        case 'last-month':
+                            const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1);
+                            return transactionDate.getMonth() === lastMonth.getMonth() && 
+                                   transactionDate.getFullYear() === lastMonth.getFullYear();
+                        case 'this-quarter':
+                            const quarter = Math.floor(now.getMonth() / 3);
+                            return Math.floor(transactionDate.getMonth() / 3) === quarter && 
+                                   transactionDate.getFullYear() === now.getFullYear();
+                        case 'this-year':
+                            return transactionDate.getFullYear() === now.getFullYear();
+                        case 'custom':
+                            const startDate = new Date(document.getElementById('startDate').value);
+                            const endDate = new Date(document.getElementById('endDate').value);
+                            return transactionDate >= startDate && transactionDate <= endDate;
+                        default:
+                            if (currentFilter.startsWith('2024-') || currentFilter.startsWith('2025-')) {
+                                const filterDate = new Date(currentFilter + '-01');
+                                return transactionDate.getMonth() === filterDate.getMonth() && 
+                                       transactionDate.getFullYear() === filterDate.getFullYear();
+                            }
+                            return true;
+                    }
+                });
+
+            // Group by month
+            const monthlyGroups = {};
+            filteredTransactions.forEach(transaction => {
+                // Parse date safely - handle invalid dates
+                let date;
+                if (transaction.date) {
+                    date = new Date(transaction.date);
+                    // Check if date is valid (not NaN and not 1970)
+                    if (isNaN(date.getTime()) || date.getFullYear() === 1970) {
+                        // Use current date as fallback for invalid dates
+                        date = new Date();
+                    }
+                } else {
+                    // Use current date if no date provided
+                    date = new Date();
+                }
+                
+                const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                
+                if (!monthlyGroups[monthKey]) {
+                    monthlyGroups[monthKey] = { income: 0, expenses: 0, transactions: 0 };
+                }
+                
+                if (transaction.amount > 0) {
+                    monthlyGroups[monthKey].income += transaction.amount;
+                } else {
+                    monthlyGroups[monthKey].expenses += Math.abs(transaction.amount);
+                }
+                monthlyGroups[monthKey].transactions++;
+            });
+
+            // Render monthly cards
+            const container = document.getElementById('monthlyGrid');
+            const months = Object.keys(monthlyGroups).sort();
+            
+            if (months.length === 0) {
+                container.innerHTML = '<p class="no-data">No data available for the selected filter.</p>';
+                return;
+            }
+
+            container.innerHTML = months.map(month => {
+                const data = monthlyGroups[month];
+                const date = new Date(month + '-01');
+                const monthName = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                const net = data.income - data.expenses;
+                
+                return `
+                    <div class="monthly-card">
+                        <h4>${monthName}</h4>
+                        <div class="monthly-stats">
+                            <span class="monthly-income">+$${data.income.toLocaleString()}</span>
+                            <span class="monthly-expenses">-$${data.expenses.toLocaleString()}</span>
+                    </div>
+                        <div style="margin-top: 0.5rem; font-weight: 600; color: ${net >= 0 ? '#10b981' : '#ef4444'}">
+                            Net: $${net.toLocaleString()}
+                    </div>
+                        <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.25rem;">
+                            ${data.transactions} transactions
+                    </div>
+                    </div>
+                `;
+            }).join('');
+            
+            } catch (error) {
+                console.error('Error updating monthly summary:', error);
+                document.getElementById('monthlyGrid').innerHTML = '<p class="no-data">Error loading monthly data. Please refresh the page.</p>';
+            }
+        }
+
+        // Export functions
+        async function generateReport() {
+            const filteredData = await getFilteredData();
+            const reportData = {
+                title: 'Financial Report',
+                date: new Date().toLocaleDateString(),
+                filter: currentFilter,
+                summary: {
+                    totalIncome: filteredData.income,
+                    totalExpenses: filteredData.expenses,
+                    netIncome: filteredData.income - filteredData.expenses,
+                    transactionCount: filteredData.transactions.length
+                },
+                monthlyData: monthlyData,
+                transactions: filteredData.transactions
+            };
+            
+            // For now, show the data structure (in real implementation, this would generate a PDF)
+            console.log('PDF Report Data:', reportData);
+            alert(`PDF report generated!\n\nSummary:\nIncome: $${reportData.summary.totalIncome.toLocaleString()}\nExpenses: $${reportData.summary.totalExpenses.toLocaleString()}\nNet: $${reportData.summary.netIncome.toLocaleString()}\n\nCheck console for full data structure.`);
+        }
+
+        async function exportData() {
+            const filteredData = await getFilteredData();
+            const csvContent = generateCSV(filteredData.transactions);
+            downloadCSV(csvContent, 'financial_data.csv');
+        }
+
+        function exportMonthlyData() {
+            const csvContent = generateMonthlyCSV();
+            downloadCSV(csvContent, 'monthly_summary.csv');
+        }
+
+        async function exportFilteredData() {
+            const filteredData = await getFilteredData();
+            const csvContent = generateCSV(filteredData.transactions);
+            const filterName = currentFilter === 'all' ? 'all_data' : currentFilter;
+            downloadCSV(csvContent, `filtered_data_${filterName}.csv`);
+        }
+
+        // Helper functions
+        async function getFilteredData() {
+            try {
+                // Get all transactions from all non-excluded files
+                const token = localStorage.getItem('token');
+                const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
+                const response = await fetch('/api/accounting/data', { headers });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch data');
+                }
+                
+                const allFiles = await response.json();
+                
+                if (!Array.isArray(allFiles) || allFiles.length === 0) {
+                    return { income: 0, expenses: 0, transactions: [] };
+                }
+
+                // Aggregate transactions from all non-excluded files
+                let allTransactions = [];
+                allFiles.forEach(file => {
+                    if (!excludedInvoices.has(file.id)) {
+                        let transactions = [];
+                        
+                        if (file.data && Array.isArray(file.data)) {
+                            // CSV/Excel files: data is array of transactions
+                            transactions = file.data;
+                        } else if (file.expenses || file.income) {
+                            // PDF/Image files: transactions are in expenses and income arrays
+                            transactions = [
+                                ...(file.expenses || []),
+                                ...(file.income || [])
+                            ];
+                        } else if (file.processed && file.processed.expenses) {
+                            // Fallback: check processed data
+                            transactions = [
+                                ...(file.processed.expenses || []),
+                                ...(file.processed.income || [])
+                            ];
+                        }
+                        
+                        allTransactions = allTransactions.concat(transactions);
+                    }
+                });
+
+                let filteredTransactions = allTransactions.filter(transaction => {
+
+                // Parse date safely - handle invalid dates
+                let transactionDate;
+                if (transaction.date) {
+                    transactionDate = new Date(transaction.date);
+                    // Check if date is valid (not NaN and not 1970)
+                    if (isNaN(transactionDate.getTime()) || transactionDate.getFullYear() === 1970) {
+                        // Use current date as fallback for invalid dates
+                        transactionDate = new Date();
+                    }
+                } else {
+                    // Use current date if no date provided
+                    transactionDate = new Date();
+                }
+                
+                const now = new Date();
+                
+                switch (currentFilter) {
+                    case 'this-month':
+                        return transactionDate.getMonth() === now.getMonth() && 
+                               transactionDate.getFullYear() === now.getFullYear();
+                    case 'last-month':
+                        const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1);
+                        return transactionDate.getMonth() === lastMonth.getMonth() && 
+                               transactionDate.getFullYear() === lastMonth.getFullYear();
+                    case 'this-quarter':
+                        const quarter = Math.floor(now.getMonth() / 3);
+                        return Math.floor(transactionDate.getMonth() / 3) === quarter && 
+                               transactionDate.getFullYear() === now.getFullYear();
+                    case 'this-year':
+                        return transactionDate.getFullYear() === now.getFullYear();
+                    case 'custom':
+                        const startDate = new Date(document.getElementById('startDate').value);
+                        const endDate = new Date(document.getElementById('endDate').value);
+                        return transactionDate >= startDate && transactionDate <= endDate;
+                    default:
+                        if (currentFilter.startsWith('2024-') || currentFilter.startsWith('2025-')) {
+                            const filterDate = new Date(currentFilter + '-01');
+                            return transactionDate.getMonth() === filterDate.getMonth() && 
+                                   transactionDate.getFullYear() === filterDate.getFullYear();
+                        }
+                        return true;
+                }
+            });
+
+            const income = filteredTransactions.filter(t => t.amount > 0).reduce((sum, t) => sum + t.amount, 0);
+            const expenses = filteredTransactions.filter(t => t.amount < 0).reduce((sum, t) => sum + Math.abs(t.amount), 0);
+
+            return { income, expenses, transactions: filteredTransactions };
+            
+            } catch (error) {
+                console.error('Error getting filtered data:', error);
+                return { income: 0, expenses: 0, transactions: [] };
+            }
+        }
+
+        function generateCSV(transactions) {
+            const headers = ['Date', 'Description', 'Amount', 'Category'];
+            const rows = transactions.map(t => {
+                // Parse date safely for CSV export
+                let dateStr = '';
+                if (t.date) {
+                    const date = new Date(t.date);
+                    if (!isNaN(date.getTime()) && date.getFullYear() !== 1970) {
+                        dateStr = date.toLocaleDateString();
+                    } else {
+                        dateStr = 'Invalid Date';
+                    }
+                } else {
+                    dateStr = 'No Date';
+                }
+                
+                return [
+                    dateStr,
+                    t.description || '',
+                    t.amount || 0,
+                    t.category || ''
+                ];
+            });
+            
+            return [headers, ...rows].map(row => row.join(',')).join('\n');
+        }
+
+        function generateMonthlyCSV() {
+            const headers = ['Month', 'Income', 'Expenses', 'Net Income', 'Transaction Count'];
+            const rows = Object.keys(monthlyData).map(month => {
+                const data = monthlyData[month];
+                return [
+                    month,
+                    data.income,
+                    data.expenses,
+                    data.income - data.expenses,
+                    data.transactions
+                ];
+            });
+            
+            return [headers, ...rows].map(row => row.join(',')).join('\n');
+        }
+
+        function downloadCSV(content, filename) {
+            const blob = new Blob([content], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Clear all dashboard data when file is deleted
+        function clearDashboardData() {
+            // Clear financial metrics
+            document.getElementById('totalIncome').textContent = '$0.00';
+            document.getElementById('totalExpenses').textContent = '$0.00';
+            document.getElementById('netCashflow').textContent = '$0.00';
+            document.getElementById('transactionCount').textContent = '0';
+
+            // Clear all section containers
+            const containers = [
+                'balanceSheetContainer',
+                'plContainer', 
+                'ledgerContainer',
+                'budgetContainer',
+                'forecastingContainer',
+                'insightsContainer'
+            ];
+            
+            containers.forEach(containerId => {
+                const container = document.getElementById(containerId);
+                if (container) {
+                    container.innerHTML = '<p class="no-data">No data available. Upload a file to see results.</p>';
+                }
+            });
+
+            // Clear monthly grid
+            document.getElementById('monthlyGrid').innerHTML = '<p class="no-data">No monthly data available.</p>';
+            
+            // Clear invoice list
+            document.getElementById('invoiceList').innerHTML = '<p class="no-data">No invoices loaded. Upload data to see invoices.</p>';
+        }
+
+        // Show notification messages
+        function showNotification(message, type = 'info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.innerHTML = `
+                <div class="notification-content">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+
+            // Add styles if not already added
+            if (!document.getElementById('notification-styles')) {
+                const styles = document.createElement('style');
+                styles.id = 'notification-styles';
+                styles.textContent = `
+                    .notification {
+                        position: fixed;
+                        top: 20px;
+                        right: 20px;
+                        padding: 1rem 1.5rem;
+                        border-radius: 8px;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                        z-index: 10000;
+                        animation: slideIn 0.3s ease;
+                        max-width: 400px;
+                    }
+                    .notification-success {
+                        background: #10b981;
+                        color: white;
+                    }
+                    .notification-error {
+                        background: #ef4444;
+                        color: white;
+                    }
+                    .notification-info {
+                        background: #3b82f6;
+                        color: white;
+                    }
+                    .notification-content {
+                        display: flex;
+                        align-items: center;
+                        gap: 0.5rem;
+                    }
+                    @keyframes slideIn {
+                        from { transform: translateX(100%); opacity: 0; }
+                        to { transform: translateX(0); opacity: 1; }
+                    }
+                `;
+                document.head.appendChild(styles);
+            }
+
+            // Add to page
+            document.body.appendChild(notification);
+
+            // Remove after 5 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideIn 0.3s ease reverse';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 5000);
+        }
+
+        function toggleLanguage() {
+            // Wait a bit for language manager to load if it's not ready yet
+            if (!window.languageManager && !window.toggleLanguage) {
+                console.log('🌐 Language manager not ready, waiting...');
+                setTimeout(() => {
+                    toggleLanguage();
+                }, 100);
+                return;
+            }
+            
+            // Use the existing language manager if available
+            if (window.languageManager) {
+                console.log('🌐 Using existing language manager');
+                window.languageManager.toggleLanguage();
+            } else if (window.toggleLanguage) {
+                console.log('🌐 Using global toggleLanguage function');
+                window.toggleLanguage();
+            } else {
+                // Fallback to simple toggle
+                console.log('🌐 Using fallback language toggle');
+                const currentLang = localStorage.getItem('language') || localStorage.getItem('i18nextLng') || 'en';
+                const newLang = currentLang === 'en' ? 'ar' : 'en';
+                
+                // Store the new language preference
+                localStorage.setItem('language', newLang);
+                localStorage.setItem('i18nextLng', newLang);
+                
+                // Apply basic language changes
+                document.documentElement.lang = newLang;
+                document.documentElement.dir = newLang === 'ar' ? 'rtl' : 'ltr';
+                
+                // Show notification
+                showNotification(
+                    `Language switched to ${newLang === 'en' ? 'English' : 'العربية'}! Full translation coming soon.`, 
+                    'info'
+                );
+                
+                console.log(`Language switched from ${currentLang} to ${newLang}`);
+            }
+        }
+
+        // Debug function to check if language button is visible
+        function debugLanguageButton() {
+            const btn = document.querySelector('.language-btn');
+            if (btn) {
+                console.log('Language button found:', btn);
+                console.log('Button styles:', window.getComputedStyle(btn));
+                btn.style.border = '3px solid red'; // Make it very visible for debugging
+                setTimeout(() => {
+                    btn.style.border = '2px solid rgba(255, 255, 255, 0.4)';
+                }, 3000);
+            } else {
+                console.log('Language button NOT found!');
+            }
+            
+            // Check if language manager is loaded
+            if (window.languageManager) {
+                console.log('✅ Language Manager is loaded:', window.languageManager);
+                console.log('Current language:', window.languageManager.getCurrentLanguage());
+            } else {
+                console.log('❌ Language Manager is NOT loaded');
+            }
+        }
+
+        function clearData() {
+            if (confirm('Are you sure you want to clear all data?')) {
+                // Clear all displayed data
+                document.getElementById('totalIncome').textContent = '$0';
+                document.getElementById('totalExpenses').textContent = '$0';
+                document.getElementById('netCashflow').textContent = '$0';
+                document.getElementById('transactionCount').textContent = '0';
+                
+                // Reset chart
+                if (financialChart) {
+                    financialChart.destroy();
+                    initializeChart();
+                }
+                
+                // Clear alerts
+                document.getElementById('alertsContainer').innerHTML = '<div class="no-alerts">No alerts at this time</div>';
+                
+                alert('All data cleared!');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/';
+        }
+    </script>
+    
+    <!-- Language Manager - Load after DOM is ready -->
+    <script src="/js/i18n.js"></script>
+</body>
+</html>
