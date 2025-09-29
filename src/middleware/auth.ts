@@ -2,7 +2,7 @@ import { Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { AuthenticatedRequest } from '../types';
 
-const JWT_SECRET = process.env['JWT_SECRET'] || 'your-secret-key';
+const JWT_SECRET = process.env['JWT_SECRET'] || 'your_jwt_secret_key_here';
 
 export const authenticateToken = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
