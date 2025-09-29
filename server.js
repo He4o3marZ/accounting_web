@@ -1777,7 +1777,11 @@ app.get('/api/accounting/generate-pdf/:id', optionalAuth, async (req, res) => {
 });
 
 // Admin routes
-app.get('/api/admin/dashboard', async (req, res) => {
+app.get('/api/admin/dashboard', getUserFromToken, async (req, res) => {
+    // Check if user is admin
+    if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+    }
     try {
         const totalUsers = await User.countDocuments();
         const totalContacts = await Contact.countDocuments();
@@ -1795,7 +1799,11 @@ app.get('/api/admin/dashboard', async (req, res) => {
     }
 });
 
-app.get('/api/admin/users', async (req, res) => {
+app.get('/api/admin/users', getUserFromToken, async (req, res) => {
+    // Check if user is admin
+    if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+    }
     try {
         const users = await User.find().select('-password');
         res.json(users);
@@ -1805,7 +1813,11 @@ app.get('/api/admin/users', async (req, res) => {
     }
 });
 
-app.get('/api/admin/contacts', async (req, res) => {
+app.get('/api/admin/contacts', getUserFromToken, async (req, res) => {
+    // Check if user is admin
+    if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+    }
     try {
         const contacts = await Contact.find().sort({ createdAt: -1 });
         res.json(contacts);
@@ -1815,7 +1827,11 @@ app.get('/api/admin/contacts', async (req, res) => {
     }
 });
 
-app.delete('/api/admin/contacts/:id', async (req, res) => {
+app.delete('/api/admin/contacts/:id', getUserFromToken, async (req, res) => {
+    // Check if user is admin
+    if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+    }
     try {
         await Contact.findByIdAndDelete(req.params.id);
         res.json({ success: true, message: 'Contact deleted successfully' });
@@ -1825,7 +1841,11 @@ app.delete('/api/admin/contacts/:id', async (req, res) => {
     }
 });
 
-app.post('/api/admin/create-user', async (req, res) => {
+app.post('/api/admin/create-user', getUserFromToken, async (req, res) => {
+    // Check if user is admin
+    if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+    }
     try {
         const { email, password, firstName, lastName, company } = req.body;
         
