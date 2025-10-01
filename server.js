@@ -63,7 +63,11 @@ mongoose.connect(config.MONGODB_URI, {
     useUnifiedTopology: true,
 })
 .then(() => console.log('Connected to MongoDB'))
-.catch(err => console.error('MongoDB connection error:', err));
+.catch(err => {
+    console.error('MongoDB connection error:', err);
+    console.log('⚠️  MongoDB not available - some features may not work');
+    console.log('💡 To fix: Install MongoDB or use MongoDB Atlas');
+});
 
 // Helper functions for invoice processing
 function categorizeItem(description) {
@@ -486,6 +490,14 @@ app.post('/api/auth/register', async (req, res) => {
     try {
         const { email, password, firstName, lastName, company } = req.body;
         
+        // Check if MongoDB is connected
+        if (mongoose.connection.readyState !== 1) {
+            return res.status(503).json({ 
+                message: 'Database not available. Please install MongoDB or use MongoDB Atlas.',
+                error: 'MongoDB connection required'
+            });
+        }
+        
         // Check if user already exists
         const existingUser = await User.findOne({ email });
         if (existingUser) {
@@ -508,7 +520,14 @@ app.post('/api/auth/register', async (req, res) => {
         res.json({ success: true, message: 'User created successfully' });
     } catch (error) {
         console.error('Registration error:', error);
-        res.status(500).json({ message: 'Failed to create user' });
+        if (error.name === 'MongoNetworkError' || error.name === 'MongoServerError') {
+            res.status(503).json({ 
+                message: 'Database connection failed. Please install MongoDB.',
+                error: 'Database unavailable'
+            });
+        } else {
+            res.status(500).json({ message: 'Failed to create user', error: error.message });
+        }
     }
 });
 
